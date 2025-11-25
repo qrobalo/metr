@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         primary: {
+          DEFAULT: '#1e3a8a',
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
@@ -21,6 +22,7 @@ export default {
           950: '#172554',
         },
         secondary: {
+          DEFAULT: '#f97316',
           50: '#fff7ed',
           100: '#ffedd5',
           200: '#fed7aa',
@@ -32,11 +34,34 @@ export default {
           800: '#9a3412',
           900: '#7c2d12',
         },
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+
+        // ✅ Ajout de la palette "neutral" pour éviter l'erreur
+        neutral: {
+          50: "#fafafa",
+          100: "#f4f4f5",
+          200: "#e4e4e7",
+          300: "#d4d4d8",
+          400: "#a1a1aa",
+          500: "#71717a",
+          600: "#52525b",
+          700: "#3f3f46",
+          800: "#27272a",
+          900: "#18181b",
+          950: "#09090b"
+        },
       },
     },
   },
   plugins: [],
-}
+  safelist: [
+    'bg-primary-900',
+    'bg-primary-800',
+    'bg-secondary-500',
+    'bg-secondary-600',
+    'text-primary-900',
+    'text-primary-600',
+    'text-secondary-500',
+    'border-primary-500',
+    'ring-primary-500',
+  ]
+};

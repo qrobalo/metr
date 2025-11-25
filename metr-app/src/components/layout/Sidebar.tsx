@@ -19,7 +19,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
 
   return (
     <div 
-      className={`bg-primary-900 h-screen flex flex-col transition-all duration-300 ${
+      className={`bg-[#1e3a8a] h-screen flex flex-col transition-all duration-300 relative ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
@@ -28,12 +28,12 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         {!isCollapsed && (
           <div className="text-white">
             <span className="text-3xl font-bold">Metr</span>
-            <span className="text-3xl font-bold text-secondary-500">.</span>
+            <span className="text-3xl font-bold text-[#f97316]">.</span>
           </div>
         )}
         {isCollapsed && (
           <div className="text-white text-2xl font-bold mx-auto">
-            M<span className="text-secondary-500">.</span>
+            M<span className="text-[#f97316]">.</span>
           </div>
         )}
       </div>
@@ -41,8 +41,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       {/* Toggle Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute left-56 top-6 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100 transition-colors z-10"
-        style={{ left: isCollapsed ? '60px' : '224px' }}
+        className="absolute -right-3 top-6 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100 transition-colors z-10"
       >
         {isCollapsed ? (
           <ChevronRight className="w-4 h-4 text-gray-600" />
@@ -63,12 +62,12 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
               onClick={() => onNavigate(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg transition-all ${
                 isActive
-                  ? 'bg-primary-800 text-white'
-                  : 'text-gray-300 hover:bg-primary-800 hover:text-white'
+                  ? 'bg-[#1e40af] text-white'
+                  : 'text-gray-300 hover:bg-[#1e40af] hover:text-white'
               }`}
               title={isCollapsed ? item.label : ''}
             >
-              <Icon className="sidebar-icon flex-shrink-0" />
+              <Icon className="w-6 h-6 flex-shrink-0" />
               {!isCollapsed && (
                 <span className="font-medium">{item.label}</span>
               )}

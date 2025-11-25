@@ -1,44 +1,49 @@
-import { Router, Request, Response } from 'express';
-import pool from '../config/database';
+// src/routes/user.routes.ts
+import { Router, Request, Response } from "express";
+import pool from "../config/database";
 
 const router = Router();
 
-// GET /api/users/:id - Récupérer un utilisateur
-router.get('/:id', async (req: Request, res: Response) => {
+// ============================
+// GET user
+// ============================
+router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const [users]: any = await pool.query(
-      'SELECT idUtilisateur, nom, prenom, email, role FROM Utilisateurs WHERE idUtilisateur = ?',
+    const [rows]: any = await pool.execute(
+      "SELECT idUtilisateur, nom, prenom, email, telephone, role FROM Utilisateurs WHERE idUtilisateur = ?",
       [id]
     );
 
-    if (users.length === 0) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    res.json(users[0]);
+    return res.json(rows[0]);
   } catch (error) {
-    console.error('Erreur récupération utilisateur:', error);
-    res.status(500).json({ message: 'Erreur serveur' });
+    console.error("Erreur récupération utilisateur :", error);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-// PUT /api/users/:id - Mettre à jour un utilisateur
-router.put('/:id', async (req: Request, res: Response) => {
+// ============================
+// UPDATE user
+// ============================
+router.put("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { nom, prenom, email, telephone, dateNaissance, genre, pays, langue } = req.body;
+    const { nom, prenom, email, telephone } = req.body;
 
-    await pool.query(
-      'UPDATE Utilisateurs SET nom = ?, prenom = ?, email = ? WHERE idUtilisateur = ?',
-      [nom, prenom, email, id]
+    await pool.execute(
+      "UPDATE Utilisateurs SET nom = ?, prenom = ?, email = ?, telephone = ? WHERE idUtilisateur = ?",
+      [nom, prenom, email, telephone, id]
     );
 
-    res.json({ message: 'Profil mis à jour avec succès' });
+    return res.json({ message: "Profil mis à jour avec succès" });
   } catch (error) {
-    console.error('Erreur mise à jour utilisateur:', error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour' });
+    console.error("Erreur mise à jour utilisateur :", error);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 });
 

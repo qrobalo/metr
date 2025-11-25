@@ -1,3 +1,4 @@
+// src/routes/auth.routes.ts
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -5,89 +6,106 @@ import pool from '../config/database';
 
 const router = Router();
 
-// POST /api/auth/register - Inscription
-router.post('/register', async (req: Request, res: Response) => {
-  try {
-    const { nom, prenom, email, telephone } = req.body;
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
+const SALT_ROUNDS = 10;
 
-    // Vérifier si l'email existe déjà
-    const [existingUsers]: any = await pool.query(
-      'SELECT * FROM Utilisateurs WHERE email = ?',
+// ============================
+// INSCRIPTION
+// ============================
+router.post("/register", async (req: Request, res: Response) => {
+  try {
+    const { nom, prenom, email, telephone, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email et mot de passe requis" });
+    }
+
+    const [existing]: any = await pool.execute(
+      "SELECT idUtilisateur FROM Utilisateurs WHERE email = ?",
       [email]
     );
 
-    if (existingUsers.length > 0) {
-      return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+    if (existing.length > 0) {
+      return res.status(400).json({ message: "Cet email est déjà utilisé" });
     }
 
-    // Créer l'utilisateur
-    const [result]: any = await pool.query(
-      'INSERT INTO Utilisateurs (nom, prenom, email, role) VALUES (?, ?, ?, ?)',
-      [nom, prenom, email, 'Utilisateur']
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const [result]: any = await pool.execute(
+      "INSERT INTO Utilisateurs (nom, prenom, email, password, telephone, role) VALUES (?, ?, ?, ?, ?, ?)",
+      [nom || "", prenom || "", email, hashedPassword, telephone || null, "Utilisateur"]
     );
 
-    // Générer un token JWT
+    const userId = result.insertId;
+
     const token = jwt.sign(
-      { idUtilisateur: result.insertId, email },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '7d' }
+      { idUtilisateur: userId, email },
+      JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
-    res.status(201).json({
-      message: 'Inscription réussie',
+    return res.status(201).json({
       token,
       user: {
-        idUtilisateur: result.insertId,
+        idUtilisateur: userId,
         nom,
         prenom,
         email,
-        role: 'Utilisateur'
-      }
+        role: "Utilisateur",
+      },
     });
   } catch (error) {
-    console.error('Erreur inscription:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'inscription' });
+    console.error("Erreur inscription :", error);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-// POST /api/auth/login - Connexion
-router.post('/login', async (req: Request, res: Response) => {
+// ============================
+// CONNEXION
+// ============================
+router.post("/login", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    // Rechercher l'utilisateur
-    const [users]: any = await pool.query(
-      'SELECT * FROM Utilisateurs WHERE email = ?',
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email et mot de passe requis" });
+    }
+
+    const [rows]: any = await pool.execute(
+      "SELECT idUtilisateur, nom, prenom, email, role, password FROM Utilisateurs WHERE email = ?",
       [email]
     );
 
-    if (users.length === 0) {
-      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+    if (rows.length === 0) {
+      return res.status(401).json({ message: "Email ou mot de passe incorrect" });
     }
 
-    const user = users[0];
+    const user = rows[0];
 
-    // Générer un token JWT
+    const isValid = await bcrypt.compare(password, user.password || "");
+
+    if (!isValid) {
+      return res.status(401).json({ message: "Email ou mot de passe incorrect" });
+    }
+
     const token = jwt.sign(
       { idUtilisateur: user.idUtilisateur, email: user.email },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '7d' }
+      JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
-    res.json({
-      message: 'Connexion réussie',
-      token,
-      user: {
-        idUtilisateur: user.idUtilisateur,
-        nom: user.nom,
-        prenom: user.prenom,
-        email: user.email,
-        role: user.role
-      }
-    });
+    const userSafe = {
+      idUtilisateur: user.idUtilisateur,
+      nom: user.nom,
+      prenom: user.prenom,
+      email: user.email,
+      role: user.role,
+    };
+
+    return res.json({ token, user: userSafe });
   } catch (error) {
-    console.error('Erreur connexion:', error);
-    res.status(500).json({ message: 'Erreur lors de la connexion' });
+    console.error("Erreur connexion :", error);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 });
 

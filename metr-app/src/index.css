@@ -1,45 +1,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+@reference "tailwindcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /* Evite @apply sur sélecteurs globaux en v4 ; utilise theme() pour couleurs */
   * {
-    @apply border border-gray-200; /* corrigé ici */
+    border-width: 1px;
+    border-color: theme('colors.neutral.300');
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-neutral-50 text-neutral-900 antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-900 text-white px-4 py-2 rounded-lg hover:bg-primary-800 transition-colors font-medium;
+    @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors font-medium;
   }
-  
+
   .btn-secondary {
-    @apply bg-secondary-500 text-white px-4 py-2 rounded-lg hover:bg-secondary-600 transition-colors font-medium;
+    @apply bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-400 transition-colors font-medium;
   }
-  
+
   .btn-outline {
-    @apply border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium;
+    @apply border border-neutral-300 bg-white text-neutral-700 px-4 py-2 rounded-lg hover:bg-neutral-100 transition-colors font-medium;
   }
-  
+
   .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all;
+    @apply w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
   }
-  
+
   .card {
     @apply bg-white rounded-lg shadow-md p-6;
   }
-  
+
   .sidebar-icon {
     @apply w-6 h-6 text-white;
   }
-  
+
   .status-badge {
     @apply px-3 py-1 rounded-full text-xs font-medium;
   }

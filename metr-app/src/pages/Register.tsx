@@ -12,11 +12,28 @@ export default function Register({ onRegister, onNavigateToLogin }: RegisterProp
     nom: '',
     telephone: '',
     email: '',
+    password: '',
+    confirmPassword: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onRegister(formData);
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    // remove confirmPassword before sending
+    const payload = {
+      nom: formData.nom,
+      prenom: formData.prenom,
+      telephone: formData.telephone,
+      email: formData.email,
+      password: formData.password
+    };
+
+    onRegister(payload);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -25,6 +42,7 @@ export default function Register({ onRegister, onNavigateToLogin }: RegisterProp
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
+      
       {/* Logo */}
       <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
         <div className="text-center">
@@ -40,6 +58,7 @@ export default function Register({ onRegister, onNavigateToLogin }: RegisterProp
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-8">
+
           {/* Prénom */}
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -95,6 +114,36 @@ export default function Register({ onRegister, onNavigateToLogin }: RegisterProp
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="votre@email.com"
+              className="input-field"
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Mot de passe <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => handleChange('password', e.target.value)}
+              placeholder="••••••••"
+              className="input-field"
+              required
+            />
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Confirmer le mot de passe <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => handleChange('confirmPassword', e.target.value)}
+              placeholder="••••••••"
               className="input-field"
               required
             />
