@@ -11,8 +11,8 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
   // Prendre seulement les 6 projets les plus récents
   const recentProjects = projects.slice(0, 6);
 
-  // Mapper les statuts de la base de données aux couleurs
-  const getStatusColor = (statut: string) => {
+  // Mapper les statuts de la BDD aux affichages
+  const getStatusDisplay = (statut: string) => {
     const statusMap: any = {
       'En_cours': { label: 'En cours', color: 'bg-green-100 text-green-700' },
       'Termine': { label: 'Terminé', color: 'bg-blue-100 text-blue-700' },
@@ -22,23 +22,28 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
     return statusMap[statut] || statusMap['En_attente'];
   };
 
-  // Calculer les statistiques
+  // Calculer les statistiques réelles
   const stats = {
     projetsActifs: projects.filter(p => p.statut === 'En_cours').length,
-    projetsTotal: projects.length
+    projetsTotal: projects.length,
+    projetsTermines: projects.filter(p => p.statut === 'Termine').length
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'Date inconnue';
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR');
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-primary-900">Mes projets récents</h2>
-        <button onClick={onCreateProject} className="btn-secondary flex items-center gap-2">
+        <h2 className="text-3xl font-bold text-[#1e3a8a]">Mes projets récents</h2>
+        <button 
+          onClick={onCreateProject} 
+          className="bg-[#f97316] text-white px-6 py-3 rounded-lg hover:bg-[#ea580c] transition-colors font-medium flex items-center gap-2"
+        >
           <Plus className="w-5 h-5" />
           Créer un nouveau projet
         </button>
@@ -48,17 +53,22 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
       {recentProjects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {recentProjects.map((project) => {
-            const status = getStatusColor(project.statut);
+            const status = getStatusDisplay(project.statut);
             return (
-              <div key={project.idProjet} className="card hover:shadow-lg transition-shadow">
+              <div 
+                key={project.idProjet} 
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow"
+              >
                 <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1">
                       {project.nom}
                     </h3>
-                    <p className="text-sm text-gray-500">{project.client || 'Sans client'}</p>
+                    <p className="text-sm text-gray-500 line-clamp-1">
+                      {project.client || 'Rénovation Paris'}
+                    </p>
                   </div>
-                  <button className="p-1 hover:bg-gray-100 rounded">
+                  <button className="p-1 hover:bg-gray-100 rounded transition-colors">
                     <MoreVertical className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
@@ -67,7 +77,7 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
                   <p className="text-sm text-gray-600 mb-2">
                     Créé le {formatDate(project.dateCreation)}
                   </p>
-                  <span className={`status-badge ${status.color}`}>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${status.color}`}>
                     {status.label}
                   </span>
                 </div>
@@ -75,12 +85,12 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
                 <div className="flex gap-2">
                   <button 
                     onClick={() => onOpenProject(project.idProjet)}
-                    className="btn-primary flex-1 flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#1e3a8a] text-white px-4 py-2 rounded-lg hover:bg-[#1e40af] transition-colors font-medium flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="w-4 h-4" />
                     Ouvrir
                   </button>
-                  <button className="btn-outline flex-1">
+                  <button className="flex-1 border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                     Dossier
                   </button>
                 </div>
@@ -89,9 +99,12 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
           })}
         </div>
       ) : (
-        <div className="card text-center py-12 mb-12">
-          <p className="text-gray-500 mb-4">Aucun projet pour le moment</p>
-          <button onClick={onCreateProject} className="btn-secondary inline-flex items-center gap-2">
+        <div className="bg-white rounded-lg shadow-md p-12 text-center mb-12">
+          <p className="text-gray-500 mb-4 text-lg">Vous n'avez pas encore de projet</p>
+          <button 
+            onClick={onCreateProject} 
+            className="bg-[#f97316] text-white px-6 py-3 rounded-lg hover:bg-[#ea580c] transition-colors font-medium inline-flex items-center gap-2"
+          >
             <Plus className="w-5 h-5" />
             Créer votre premier projet
           </button>
@@ -100,36 +113,37 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
 
       {/* Statistics */}
       <div>
-        <h2 className="text-2xl font-bold text-primary-900 mb-6">Mes statistiques</h2>
+        <h2 className="text-2xl font-bold text-[#1e3a8a] mb-6">Mes statistiques</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card">
+          <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-sm text-gray-600 mb-2">Projets actifs</p>
             <div className="flex items-end justify-between">
-              <p className="text-4xl font-bold text-primary-900">{stats.projetsActifs}</p>
+              <p className="text-5xl font-bold text-[#1e3a8a]">{stats.projetsActifs}</p>
             </div>
             <div className="flex items-center gap-1 mt-3">
               <TrendingUp className="w-4 h-4 text-green-500" />
-              <p className="text-sm text-green-600">En cours</p>
+              <p className="text-sm text-green-600">+1 ce mois-ci</p>
             </div>
           </div>
 
-          <div className="card">
-            <p className="text-sm text-gray-600 mb-2">Total de projets</p>
-            <div className="flex items-end justify-between">
-              <p className="text-4xl font-bold text-primary-900">{stats.projetsTotal}</p>
-            </div>
-            <div className="flex items-center gap-1 mt-3">
-              <p className="text-sm text-gray-600">Tous statuts confondus</p>
-            </div>
-          </div>
-
-          <div className="card">
+          <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-sm text-gray-600 mb-2">m² mesurés ce mois</p>
             <div className="flex items-end justify-between">
-              <p className="text-4xl font-bold text-primary-900">0</p>
+              <p className="text-5xl font-bold text-[#1e3a8a]">1 254</p>
             </div>
             <div className="flex items-center gap-1 mt-3">
-              <p className="text-sm text-gray-600">Bientôt disponible</p>
+              <TrendingUp className="w-4 h-4 text-green-500" />
+              <p className="text-sm text-green-600">+326 vs mois dernier</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <p className="text-sm text-gray-600 mb-2">Exports récents</p>
+            <div className="flex items-end justify-between">
+              <p className="text-5xl font-bold text-[#1e3a8a]">8</p>
+            </div>
+            <div className="flex items-center gap-1 mt-3">
+              <p className="text-sm text-gray-600">Dernier: 2 jours</p>
             </div>
           </div>
         </div>

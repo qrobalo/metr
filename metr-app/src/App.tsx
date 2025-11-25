@@ -9,7 +9,9 @@ import Projects from './pages/Projects';
 import CreateProject from './pages/CreateProject';
 import Library from './pages/Library';
 import Notifications from './pages/Notifications';
-import { authAPI, userAPI, projectAPI, libraryAPI, notificationAPI } from './services/api';
+import Help from './pages/Help';
+import Settings from './pages/Settings';
+import { authAPI, userAPI, projectAPI, libraryAPI } from './services/api';
 
 type Page = 'login' | 'register' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'library' | 'notifications' | 'help' | 'settings';
 
@@ -27,21 +29,26 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [projects, setProjects] = useState([]);
   const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  // Vérifier si l'utilisateur est déjà connecté au chargement
+  // Vérifier si l'utilisateur est déjà connecté
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
     if (token && user) {
-      setIsAuthenticated(true);
-      setCurrentUser(JSON.parse(user));
-      setCurrentPage('dashboard');
+      try {
+        setCurrentUser(JSON.parse(user));
+        setIsAuthenticated(true);
+        setCurrentPage('dashboard');
+      } catch (error) {
+        console.error('Erreur parsing user:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
-  // Charger les données quand l'utilisateur change de page
+  // Charger les données
   useEffect(() => {
     if (isAuthenticated && currentUser) {
       if (currentPage === 'projects' || currentPage === 'dashboard') {
@@ -53,10 +60,10 @@ function App() {
     }
   }, [currentPage, isAuthenticated, currentUser]);
 
-  // Handlers
   const handleLogin = async (email: string, password: string) => {
     try {
-      setLoading(true);
+      console.log('🔐 Tentative de connexion:', email);
+      
       const response = await authAPI.login(email, password);
       
       localStorage.setItem('token', response.token);
@@ -65,16 +72,18 @@ function App() {
       setCurrentUser(response.user);
       setIsAuthenticated(true);
       setCurrentPage('dashboard');
+      
+      console.log('✅ Connexion réussie !');
     } catch (error: any) {
-      alert(error.message || 'Erreur de connexion');
-    } finally {
-      setLoading(false);
+      console.error('❌ Erreur de connexion:', error);
+      throw new Error(error.message || 'Impossible de se connecter. Vérifiez que le backend est lancé.');
     }
   };
 
   const handleRegister = async (data: any) => {
     try {
-      setLoading(true);
+      console.log('📝 Tentative d\'inscription:', data);
+      
       const response = await authAPI.register(data);
       
       localStorage.setItem('token', response.token);
@@ -83,15 +92,24 @@ function App() {
       setCurrentUser(response.user);
       setIsAuthenticated(true);
       setCurrentPage('dashboard');
+      
+      console.log('✅ Inscription réussie !');
     } catch (error: any) {
-      alert(error.message || 'Erreur lors de l\'inscription');
-    } finally {
-      setLoading(false);
+      console.error('❌ Erreur d\'inscription:', error);
+      throw new Error(error.message || 'Impossible de créer le compte.');
     }
   };
 
-  const handleNavigate = (page: string) => {
-    setCurrentPage(page as Page);
+  const loadProjects = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const data = await projectAPI.getProjects(currentUser.idUtilisateur);
+      setProjects(data);
+      console.log('✅ Projets chargés:', data.length);
+    } catch (error) {
+      console.error('❌ Erreur chargement projets:', error);
+    }
   };
 
   const handleSaveProfile = async (data: any) => {
@@ -107,17 +125,6 @@ function App() {
       alert('Profil mis à jour avec succès');
     } catch (error: any) {
       alert(error.message || 'Erreur lors de la mise à jour');
-    }
-  };
-
-  const loadProjects = async () => {
-    if (!currentUser) return;
-    
-    try {
-      const data = await projectAPI.getProjects(currentUser.idUtilisateur);
-      setProjects(data);
-    } catch (error) {
-      console.error('Erreur chargement projets:', error);
     }
   };
 
@@ -138,35 +145,19 @@ function App() {
     }
   };
 
-  const handleOpenProject = (id: number) => {
-    console.log('Ouvrir projet:', id);
-  };
-
   const loadArticles = async () => {
     try {
       const data = await libraryAPI.getArticles();
       setArticles(data);
+      console.log('✅ Articles chargés:', data.length);
     } catch (error) {
-      console.error('Erreur chargement articles:', error);
+      console.error('❌ Erreur chargement articles:', error);
     }
   };
 
-  const handleCreateArticle = async (data: any) => {
-    try {
-      await libraryAPI.createArticle(data);
-      alert('Article créé avec succès');
-      loadArticles();
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de la création');
-    }
-  };
-
-  const handleImportLibrary = () => {
-    console.log('Import library');
-  };
-
-  const handleManageLibraries = () => {
-    console.log('Manage libraries');
+  const handleCreateArticle = () => {
+    alert('Fonctionnalité de création d\'article en développement');
+    loadArticles();
   };
 
   const getCurrentDate = () => {
@@ -196,8 +187,8 @@ function App() {
 
   // Main app
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar currentPage={currentPage} onNavigate={handleNavigate} />
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header 
@@ -208,12 +199,12 @@ function App() {
           onProfileClick={() => setCurrentPage('profile')}
         />
         
-        <main className="flex-1 overflow-y-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto">
           {currentPage === 'dashboard' && (
             <Dashboard 
               projects={projects}
               onCreateProject={() => setCurrentPage('createProject')}
-              onOpenProject={handleOpenProject}
+              onOpenProject={(id) => console.log('Ouvrir projet', id)}
             />
           )}
           
@@ -237,7 +228,7 @@ function App() {
             <Projects 
               projects={projects}
               onCreateProject={() => setCurrentPage('createProject')}
-              onOpenProject={handleOpenProject}
+              onOpenProject={(id) => console.log('Ouvrir projet', id)}
             />
           )}
           
@@ -252,28 +243,18 @@ function App() {
             <Library 
               articles={articles}
               onCreateArticle={handleCreateArticle}
-              onImportLibrary={handleImportLibrary}
-              onManageLibraries={handleManageLibraries}
+              onImportLibrary={() => alert('Import en développement')}
+              onManageLibraries={() => console.log('Manage')}
             />
           )}
           
           {currentPage === 'notifications' && (
-            <Notifications onOpenProject={handleOpenProject} />
+            <Notifications onOpenProject={(id) => console.log('Open', id)} />
           )}
           
-          {currentPage === 'help' && (
-            <div className="p-8">
-              <h2 className="text-3xl font-bold text-primary-900">Aide</h2>
-              <p className="text-gray-600 mt-4">Page d'aide en construction...</p>
-            </div>
-          )}
+          {currentPage === 'help' && <Help />}
           
-          {currentPage === 'settings' && (
-            <div className="p-8">
-              <h2 className="text-3xl font-bold text-primary-900">Paramètres</h2>
-              <p className="text-gray-600 mt-4">Page de paramètres en construction...</p>
-            </div>
-          )}
+          {currentPage === 'settings' && <Settings />}
         </main>
       </div>
     </div>
