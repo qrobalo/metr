@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Bell, Shield, Users, Palette, Globe, Download, Trash2, LogOut } from 'lucide-react';
+import { Bell, Shield, Users, Palette, Download, Trash2, LogOut } from 'lucide-react';
+import { authAPI } from '../services/api';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('notifications');
@@ -24,6 +25,24 @@ export default function Settings() {
 
   const toggleSetting = (key: string) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
+  };
+
+  const handleLogout = () => {
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      authAPI.logout();
+    }
+  };
+
+  const handleExportData = () => {
+    alert('Export de vos données en cours...\nVous recevrez un email avec le lien de téléchargement.');
+  };
+
+  const handleDeleteAccount = () => {
+    if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous VRAIMENT sûr de vouloir supprimer votre compte ?\n\nCette action est IRRÉVERSIBLE et supprimera toutes vos données.')) {
+      if (confirm('Dernière confirmation : Supprimer définitivement mon compte ?')) {
+        alert('Fonctionnalité de suppression de compte en développement.\nContactez le support pour supprimer votre compte.');
+      }
+    }
   };
 
   return (
@@ -234,23 +253,6 @@ export default function Settings() {
                       <option value="yyyy-mm-dd">YYYY-MM-DD</option>
                     </select>
                   </div>
-
-                  <div className="flex items-center justify-between pt-6 border-t">
-                    <div>
-                      <p className="font-medium text-gray-900">Mode sombre</p>
-                      <p className="text-sm text-gray-500">Activer le thème sombre (bientôt disponible)</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={settings.darkMode}
-                        onChange={() => toggleSetting('darkMode')}
-                        disabled
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-disabled:opacity-50"></div>
-                    </label>
-                  </div>
                 </div>
               </div>
             )}
@@ -269,7 +271,10 @@ export default function Settings() {
                         <h4 className="font-medium text-gray-900">Exporter mes données</h4>
                         <p className="text-sm text-gray-500">Téléchargez toutes vos données au format ZIP</p>
                       </div>
-                      <button className="bg-[#1e3a8a] text-white px-6 py-2 rounded-lg hover:bg-[#1e40af] transition-colors font-medium">
+                      <button 
+                        onClick={handleExportData}
+                        className="bg-[#1e3a8a] text-white px-6 py-2 rounded-lg hover:bg-[#1e40af] transition-colors font-medium"
+                      >
                         Exporter
                       </button>
                     </div>
@@ -282,7 +287,10 @@ export default function Settings() {
                         <h4 className="font-medium text-red-900">Supprimer mon compte</h4>
                         <p className="text-sm text-red-700">Cette action est irréversible</p>
                       </div>
-                      <button className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium">
+                      <button 
+                        onClick={handleDeleteAccount}
+                        className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                      >
                         Supprimer
                       </button>
                     </div>
@@ -295,7 +303,10 @@ export default function Settings() {
                         <h4 className="font-medium text-gray-900">Se déconnecter</h4>
                         <p className="text-sm text-gray-500">Déconnexion de votre session actuelle</p>
                       </div>
-                      <button className="border border-gray-300 bg-white text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                      <button 
+                        onClick={handleLogout}
+                        className="border border-gray-300 bg-white text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
                         Déconnexion
                       </button>
                     </div>

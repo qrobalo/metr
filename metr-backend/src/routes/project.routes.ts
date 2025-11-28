@@ -30,11 +30,12 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/projects/:id - Récupérer un projet
+// GET /api/projects/:id - Récupérer un projet avec tous ses détails
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    // Récupérer le projet
     const [projects]: any = await pool.query(
       'SELECT * FROM Projets WHERE idProjet = ?',
       [id]
@@ -44,15 +45,37 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Projet non trouvé' });
     }
 
-    // Récupérer les plans associés
+    // Récupérer les plans
     const [plans]: any = await pool.query(
-      'SELECT * FROM Plans WHERE idProjet = ?',
+      `SELECT 
+        p.idPlan,
+        p.nom as titre,
+        pv.dateVersion as date,
+        f.nom as fichierNom
+      FROM Plans p
+      LEFT JOIN PlanVersions pv ON p.idPlan = pv.idPlan
+      LEFT JOIN Fichiers f ON p.idPlan = f.idPlan
+      WHERE p.idProjet = ?
+      ORDER BY pv.dateVersion DESC`,
       [id]
+    );
+
+    // Récupérer les fichiers/documents
+    const [fichiers]: any = await pool.query(
+      `SELECT 
+        idFichier,
+        nom as titre,
+        dateUpload as date,
+        type
+      FROM Fichiers 
+      WHERE idPlan IS NULL
+      ORDER BY dateUpload DESC`
     );
 
     res.json({
       ...projects[0],
-      plans
+      plans: plans || [],
+      documents: fichiers || []
     });
   } catch (error) {
     console.error('Erreur récupération projet:', error);
@@ -78,6 +101,84 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erreur création projet:', error);
     res.status(500).json({ message: 'Erreur lors de la création du projet' });
+  }
+});
+
+// POST /api/projects/:id/plans - Ajouter un plan
+router.post('/:id/plans', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { nom, niveau, zone } = req.body;
+
+    const [result]: any = await pool.query(
+      'INSERT INTO Plans (nom, niveau, zone, idProjet) VALUES (?, ?, ?, ?)',
+      [nom, niveau || '', zone || '', id]
+    );
+
+    // Créer une version initiale
+    await pool.query(
+      'INSERT INTO PlanVersions (numeroVersion, dateVersion, idPlan) VALUES (1, NOW(), ?)',
+      [result.insertId]
+    );
+
+    res.status(201).json({
+      message: 'Plan ajouté avec succès',
+      idPlan: result.insertId
+    });
+  } catch (error) {
+    console.error('Erreur ajout plan:', error);
+    res.status(500).json({ message: 'Erreur lors de l\'ajout du plan' });
+  }
+});
+
+// DELETE /api/projects/:id/plans/:planId - Supprimer un plan
+router.delete('/:id/plans/:planId', async (req: Request, res: Response) => {
+  try {
+    const { planId } = req.params;
+
+    // Supprimer les versions et fichiers associés
+    await pool.query('DELETE FROM PlanVersions WHERE idPlan = ?', [planId]);
+    await pool.query('DELETE FROM Fichiers WHERE idPlan = ?', [planId]);
+    await pool.query('DELETE FROM Plans WHERE idPlan = ?', [planId]);
+
+    res.json({ message: 'Plan supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur suppression plan:', error);
+    res.status(500).json({ message: 'Erreur lors de la suppression' });
+  }
+});
+
+// POST /api/projects/:id/documents - Ajouter un document
+router.post('/:id/documents', async (req: Request, res: Response) => {
+  try {
+    const { nom, type, taille } = req.body;
+
+    const [result]: any = await pool.query(
+      'INSERT INTO Fichiers (nom, type, taille, dateUpload) VALUES (?, ?, ?, NOW())',
+      [nom, type, taille]
+    );
+
+    res.status(201).json({
+      message: 'Document ajouté avec succès',
+      idFichier: result.insertId
+    });
+  } catch (error) {
+    console.error('Erreur ajout document:', error);
+    res.status(500).json({ message: 'Erreur lors de l\'ajout du document' });
+  }
+});
+
+// DELETE /api/projects/:id/documents/:docId - Supprimer un document
+router.delete('/:id/documents/:docId', async (req: Request, res: Response) => {
+  try {
+    const { docId } = req.params;
+
+    await pool.query('DELETE FROM Fichiers WHERE idFichier = ?', [docId]);
+
+    res.json({ message: 'Document supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur suppression document:', error);
+    res.status(500).json({ message: 'Erreur lors de la suppression' });
   }
 });
 

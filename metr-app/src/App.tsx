@@ -7,13 +7,14 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Projects from './pages/Projects';
 import CreateProject from './pages/CreateProject';
+import ProjectDetail from './pages/ProjectDetail';
 import Library from './pages/Library';
 import Notifications from './pages/Notifications';
 import Help from './pages/Help';
 import Settings from './pages/Settings';
 import { authAPI, userAPI, projectAPI, libraryAPI } from './services/api';
 
-type Page = 'login' | 'register' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'library' | 'notifications' | 'help' | 'settings';
+type Page = 'login' | 'register' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'projectDetail' | 'library' | 'notifications' | 'help' | 'settings';
 
 interface User {
   idUtilisateur: number;
@@ -29,6 +30,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [projects, setProjects] = useState([]);
   const [articles, setArticles] = useState([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
   // Vérifier si l'utilisateur est déjà connecté
   useEffect(() => {
@@ -145,6 +147,11 @@ function App() {
     }
   };
 
+  const handleOpenProject = (id: number) => {
+    setSelectedProjectId(id);
+    setCurrentPage('projectDetail');
+  };
+
   const loadArticles = async () => {
     try {
       const data = await libraryAPI.getArticles();
@@ -204,7 +211,7 @@ function App() {
             <Dashboard 
               projects={projects}
               onCreateProject={() => setCurrentPage('createProject')}
-              onOpenProject={(id) => console.log('Ouvrir projet', id)}
+              onOpenProject={handleOpenProject}
             />
           )}
           
@@ -228,7 +235,7 @@ function App() {
             <Projects 
               projects={projects}
               onCreateProject={() => setCurrentPage('createProject')}
-              onOpenProject={(id) => console.log('Ouvrir projet', id)}
+              onOpenProject={handleOpenProject}
             />
           )}
           
@@ -236,6 +243,13 @@ function App() {
             <CreateProject 
               onCancel={() => setCurrentPage('projects')}
               onCreate={handleCreateProject}
+            />
+          )}
+          
+          {currentPage === 'projectDetail' && selectedProjectId && (
+            <ProjectDetail 
+              projectId={selectedProjectId}
+              onBack={() => setCurrentPage('projects')}
             />
           )}
           
@@ -249,7 +263,7 @@ function App() {
           )}
           
           {currentPage === 'notifications' && (
-            <Notifications onOpenProject={(id) => console.log('Open', id)} />
+            <Notifications onOpenProject={handleOpenProject} />
           )}
           
           {currentPage === 'help' && <Help />}

@@ -1,43 +1,32 @@
-// metr-app/src/services/api.ts
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Fonction utilitaire pour les requêtes
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
-
+  
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
-  const url = `${API_BASE_URL.replace(/\/$/, '')}${endpoint}`;
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include', // si tu utilises cookies
-    });
-  } catch (err: any) {
-    // fetch failed network error
-    throw new Error(`Network error: ${err.message || err}`);
-  }
-
-  if (response.status === 204) return null;
-
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
 
   if (!response.ok) {
-    const errMsg = data?.message || response.statusText || 'Une erreur est survenue';
-    throw new Error(errMsg);
+    const error = await response.json();
+    throw new Error(error.message || 'Une erreur est survenue');
   }
 
-  return data;
+  return response.json();
 }
 
-// AUTH
+// ====================
+// AUTHENTIFICATION
+// ====================
+
 export const authAPI = {
   login: async (email: string, password: string) => {
     return fetchAPI('/auth/login', {
@@ -45,42 +34,141 @@ export const authAPI = {
       body: JSON.stringify({ email, password }),
     });
   },
+
   register: async (data: any) => {
     return fetchAPI('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
+
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+  }
 };
 
-// USERS
+// ====================
+// UTILISATEURS
+// ====================
+
 export const userAPI = {
-  getUser: async (id: number) => fetchAPI(`/users/${id}`),
-  updateUser: async (id: number, data: any) => fetchAPI(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-};
-
-// PROJECTS
-export const projectAPI = {
-  getProjects: async (userId: number) => fetchAPI(`/projects?userId=${userId}`),
-  getProject: async (id: number) => fetchAPI(`/projects/${id}`),
-  createProject: async (data: any) => fetchAPI('/projects', { method: 'POST', body: JSON.stringify(data) }),
-  updateProject: async (id: number, data: any) => fetchAPI(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteProject: async (id: number) => fetchAPI(`/projects/${id}`, { method: 'DELETE' }),
-};
-
-// LIBRARY
-export const libraryAPI = {
-  getBibliotheques: async () => fetchAPI('/library/bibliotheques'),
-  createBibliotheque: async (data: any) => fetchAPI('/library/bibliotheques', { method: 'POST', body: JSON.stringify(data) }),
-  deleteBibliotheque: async (id: number) => fetchAPI(`/library/bibliotheques/${id}`, { method: 'DELETE' }),
-  getArticles: async (bibliothequeId?: number) => {
-    const q = bibliothequeId ? `?bibliothequeId=${bibliothequeId}` : '';
-    return fetchAPI(`/library/articles${q}`);
+  getUser: async (id: number) => {
+    return fetchAPI(`/users/${id}`);
   },
-  createArticle: async (data: any) => fetchAPI('/library/articles', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateUser: async (id: number, data: any) => {
+    return fetchAPI(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
+// ====================
+// PROJETS
+// ====================
+
+export const projectAPI = {
+  getProjects: async (userId: number) => {
+    return fetchAPI(`/projects?userId=${userId}`);
+  },
+
+  getProject: async (id: number) => {
+    return fetchAPI(`/projects/${id}`);
+  },
+
+  createProject: async (data: any) => {
+    return fetchAPI('/projects', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateProject: async (id: number, data: any) => {
+    return fetchAPI(`/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteProject: async (id: number) => {
+    return fetchAPI(`/projects/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Plans
+  addPlan: async (projectId: number, data: any) => {
+    return fetchAPI(`/projects/${projectId}/plans`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deletePlan: async (projectId: number, planId: number) => {
+    return fetchAPI(`/projects/${projectId}/plans/${planId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Documents
+  addDocument: async (projectId: number, data: any) => {
+    return fetchAPI(`/projects/${projectId}/documents`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteDocument: async (projectId: number, docId: number) => {
+    return fetchAPI(`/projects/${projectId}/documents/${docId}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// ====================
+// BIBLIOTHÈQUES
+// ====================
+
+export const libraryAPI = {
+  getBibliotheques: async () => {
+    return fetchAPI('/library/bibliotheques');
+  },
+
+  createBibliotheque: async (data: any) => {
+    return fetchAPI('/library/bibliotheques', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteBibliotheque: async (id: number) => {
+    return fetchAPI(`/library/bibliotheques/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getArticles: async (bibliothequeId?: number) => {
+    const query = bibliothequeId ? `?bibliothequeId=${bibliothequeId}` : '';
+    return fetchAPI(`/library/articles${query}`);
+  },
+
+  createArticle: async (data: any) => {
+    return fetchAPI('/library/articles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// ====================
 // NOTIFICATIONS
+// ====================
+
 export const notificationAPI = {
-  getNotifications: async () => fetchAPI('/notifications'),
+  getNotifications: async () => {
+    return fetchAPI('/notifications');
+  },
 };
