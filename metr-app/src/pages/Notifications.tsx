@@ -1,187 +1,249 @@
-import React, { useState } from 'react';
-import { Search, Trash2, ExternalLink } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Search, Trash2, ExternalLink, Check, CheckCheck } from 'lucide-react';
+
+interface Notification {
+  id: number;
+  date: string;
+  title: string;
+  message?: string | null;
+  isRead: boolean;
+  projectId?: number;
+  projectRemoved?: boolean;
+}
 
 interface NotificationsProps {
   onOpenProject: (id: number) => void;
+  onNotificationRead?: () => void;
 }
 
-export default function Notifications({ onOpenProject }: NotificationsProps) {
+export default function Notifications({
+  onOpenProject,
+  onNotificationRead
+}: NotificationsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedNotification, setSelectedNotification] = useState<number | null>(3);
 
-  const notifications = [
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
       date: '04/11/2025',
-      title: 'Vous avez été ajouté à un projet',
-      message: null,
-      isRead: true
+      title: 'Ajout à un projet',
+      message: 'Vous avez été ajouté au projet "Tour Verre La Défense".',
+      isRead: true,
+      projectId: 2
     },
     {
       id: 2,
       date: '02/11/2025',
-      title: 'Vous avez été ajouté à une bibliothèque',
-      message: null,
+      title: 'Ajout à une bibliothèque',
+      message: 'Une bibliothèque de matériaux a été partagée avec vous.',
       isRead: true
     },
     {
       id: 3,
-      date: '31/10/2015',
-      title: "Vous avez été supprimé d'un projet",
-      message: 'Paul Dupont vous a supprimé du projet "Immeuble Haussmannien".',
+      date: '31/10/2025',
+      title: "Suppression d'un projet",
+      message:
+        'Paul Dupont vous a supprimé du projet "Immeuble Haussmannien". Vous n’avez plus accès à ce projet.',
       isRead: false,
-      projectId: 1
-    },
-    {
-      id: 4,
-      date: '28/10/2025',
-      title: 'Vous avez été ajouté à une bibliothèque',
-      message: null,
-      isRead: true
-    },
-    {
-      id: 5,
-      date: '24/10/2025',
-      title: 'Vous avez été ajouté à un projet',
-      message: null,
-      isRead: true
-    },
-    {
-      id: 6,
-      date: '24/10/2025',
-      title: 'Vous avez été ajouté à une bibliothèque',
-      message: null,
-      isRead: true
-    },
-    {
-      id: 7,
-      date: '20/10/2025',
-      title: 'Vous avez été ajouté à une bibliothèque',
-      message: null,
-      isRead: true
-    },
-    {
-      id: 8,
-      date: '15/10/2025',
-      title: 'Vous avez été ajouté à un projet',
-      message: null,
-      isRead: true
-    },
-    {
-      id: 9,
-      date: '09/10/2025',
-      title: "Vous avez été supprimé d'un projet",
-      message: null,
-      isRead: true
+      projectId: 1,
+      projectRemoved: true
     }
-  ];
+  ]);
+
+  /* ---------------------------------- */
+  /* UTILITIES                          */
+  /* ---------------------------------- */
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const filteredNotifications = useMemo(() => {
+    return notifications
+      .filter(n =>
+        (n.title + (n.message ?? '')).toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [notifications, searchQuery]);
+
   const selected = notifications.find(n => n.id === selectedNotification);
 
+  /* ---------------------------------- */
+  /* ACTIONS                            */
+  /* ---------------------------------- */
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev =>
+      prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
+    );
+    onNotificationRead?.();
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    onNotificationRead?.();
+  };
+
+  const deleteNotification = (id: number) => {
+    if (!confirm('Supprimer cette notification ?')) return;
+
+    setNotifications(prev => prev.filter(n => n.id !== id));
+    if (selectedNotification === id) setSelectedNotification(null);
+  };
+
+  const deleteReadNotifications = () => {
+    if (!confirm('Supprimer toutes les notifications lues ?')) return;
+    setNotifications(prev => prev.filter(n => !n.isRead));
+  };
+
+  /* ---------------------------------- */
+  /* SIDE EFFECTS                       */
+  /* ---------------------------------- */
+
+  useEffect(() => {
+    if (selected && !selected.isRead) {
+      markAsRead(selected.id);
+    }
+  }, [selected]);
+
+  /* ---------------------------------- */
+  /* RENDER                             */
+  /* ---------------------------------- */
+
   return (
-    <div className="p-8 max-w-7xl">
-      <h2 className="text-3xl font-bold text-primary-900 mb-8">Notifications</h2>
+    <div className="p-8 max-w-7xl mx-auto">
+      <h2 className="text-3xl font-bold text-[#1e3a8a] mb-8">Notifications</h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Notifications List */}
-        <div className="lg:col-span-1">
-          <div className="card">
-            {/* Search */}
-            <div className="relative mb-4">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher dans les notifications"
-                className="input-field pl-10"
-              />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* LEFT COLUMN */}
+        <div className="bg-white rounded-xl shadow-md p-6 flex flex-col">
+
+          {/* Search */}
+          <div className="relative mb-4">
+            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Rechercher une notification"
+              className="w-full pl-10 px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#1e3a8a]"
+            />
+          </div>
+
+          {/* Stats + Actions */}
+          <div className="flex justify-between items-center text-sm text-gray-600 mb-3">
+            <span>
+              <strong>{notifications.length}</strong> notifications •{' '}
+              <strong>{unreadCount}</strong> non lues
+            </span>
+
+            <div className="flex gap-3">
+              <button
+                onClick={markAllAsRead}
+                className="hover:text-[#1e3a8a]"
+                title="Tout marquer comme lu"
+              >
+                <CheckCheck className="w-4 h-4" />
+              </button>
+              <button
+                onClick={deleteReadNotifications}
+                className="hover:text-red-500"
+                title="Supprimer les lues"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
+          </div>
 
-            {/* Stats */}
-            <p className="text-sm text-gray-600 mb-4">
-              <span className="font-semibold">{notifications.length} Notifications</span> / {unreadCount} Non lues
-            </p>
-
-            {/* Notifications Table */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Titre</th>
-                    <th className="px-4 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {notifications.map((notification) => (
-                    <tr
-                      key={notification.id}
-                      onClick={() => setSelectedNotification(notification.id)}
-                      className={`cursor-pointer transition-colors ${
-                        selectedNotification === notification.id
-                          ? 'bg-blue-50'
-                          : notification.isRead
-                          ? 'bg-white hover:bg-gray-50'
-                          : 'bg-gray-50 hover:bg-gray-100'
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {notification.date}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {notification.title}
-                      </td>
-                      <td className="px-4 py-3">
-                        <button className="text-gray-400 hover:text-red-500">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* List */}
+          <div className="border rounded-lg flex-1 overflow-hidden">
+            <div className="max-h-[520px] overflow-y-auto">
+              {filteredNotifications.length === 0 ? (
+                <div className="text-center text-gray-500 py-10">
+                  Aucune notification
+                </div>
+              ) : (
+                <table className="w-full">
+                  <tbody className="divide-y">
+                    {filteredNotifications.map(n => (
+                      <tr
+                        key={n.id}
+                        onClick={() => setSelectedNotification(n.id)}
+                        className={`cursor-pointer transition ${
+                          selectedNotification === n.id
+                            ? 'bg-blue-50'
+                            : n.isRead
+                            ? 'hover:bg-gray-50'
+                            : 'bg-gray-50 hover:bg-gray-100'
+                        }`}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {!n.isRead && (
+                              <span className="w-2 h-2 bg-blue-600 rounded-full" />
+                            )}
+                            <div>
+                              <p className="font-medium text-sm">{n.title}</p>
+                              <p className="text-xs text-gray-500">{n.date}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              deleteNotification(n.id);
+                            }}
+                            className="text-gray-400 hover:text-red-500"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Notification Detail */}
-        <div className="lg:col-span-2">
+        {/* RIGHT COLUMN */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-8">
           {selected ? (
-            <div className="card">
-              <div className="flex items-start justify-between mb-6">
+            <>
+              <div className="flex justify-between mb-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {selected.title}
-                  </h3>
+                  <h3 className="text-2xl font-bold">{selected.title}</h3>
                   <p className="text-sm text-gray-500">{selected.date}</p>
                 </div>
+
+                <button
+                  onClick={() => deleteNotification(selected.id)}
+                  className="text-red-500 hover:bg-red-50 p-2 rounded-lg"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
               </div>
 
               {selected.message && (
-                <div className="mb-6">
-                  <p className="text-gray-700 leading-relaxed">
-                    {selected.message}
-                  </p>
-                </div>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  {selected.message}
+                </p>
               )}
 
-              {selected.projectId && (
-                <button 
+              {selected.projectId && !selected.projectRemoved && (
+                <button
                   onClick={() => onOpenProject(selected.projectId!)}
-                  className="btn-primary flex items-center gap-2"
+                  className="bg-[#1e3a8a] text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-[#1e40af]"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Ouvrir
+                  Ouvrir le projet
                 </button>
               )}
-            </div>
+            </>
           ) : (
-            <div className="card text-center py-12">
-              <p className="text-gray-500">
-                Sélectionnez une notification pour voir les détails
-              </p>
+            <div className="text-center text-gray-500 py-12">
+              Sélectionnez une notification
             </div>
           )}
         </div>

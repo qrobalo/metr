@@ -22,6 +22,11 @@ interface User {
   prenom: string;
   email: string;
   role: string;
+  telephone?: string;
+  dateNaissance?: string;
+  genre?: string;
+  pays?: string;
+  langue?: string;
 }
 
 function App() {
@@ -31,30 +36,40 @@ function App() {
   const [projects, setProjects] = useState([]);
   const [articles, setArticles] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Vérifier si l'utilisateur est déjà connecté
+  // Vérification de l'authentification au chargement
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      try {
-        setCurrentUser(JSON.parse(user));
-        setIsAuthenticated(true);
-        setCurrentPage('dashboard');
-      } catch (error) {
-        console.error('Erreur parsing user:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      
+      if (token && user) {
+        try {
+          const parsedUser = JSON.parse(user);
+          setCurrentUser(parsedUser);
+          setIsAuthenticated(true);
+          setCurrentPage('dashboard');
+          
+          // Charger immédiatement les données
+          await loadProjects(parsedUser.idUtilisateur);
+        } catch (error) {
+          console.error('❌ Erreur parsing user:', error);
+          handleLogout();
+        }
       }
-    }
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
-  // Charger les données
+  // Recharger les projets quand on change de page
   useEffect(() => {
     if (isAuthenticated && currentUser) {
       if (currentPage === 'projects' || currentPage === 'dashboard') {
-        loadProjects();
+        loadProjects(currentUser.idUtilisateur);
       }
       if (currentPage === 'library') {
         loadArticles();
@@ -62,56 +77,82 @@ function App() {
     }
   }, [currentPage, isAuthenticated, currentUser]);
 
-  const handleLogin = async (email: string, password: string) => {
+  const loadProjects = async (userId?: number) => {
+    const id = userId || currentUser?.idUtilisateur;
+    if (!id) return;
+    
     try {
-      console.log('🔐 Tentative de connexion:', email);
+      console.log('🔄 Chargement des projets...');
+      const data = await projectAPI.getProjects(id);
       
-      const response = await authAPI.login(email, password);
+      // S'assurer que plansCount est défini
+      const enrichedProjects = data.map((project: any) => ({
+        ...project,
+        plansCount: project.plansCount || 0
+      }));
       
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      setCurrentUser(response.user);
-      setIsAuthenticated(true);
-      setCurrentPage('dashboard');
-      
-      console.log('✅ Connexion réussie !');
-    } catch (error: any) {
-      console.error('❌ Erreur de connexion:', error);
-      throw new Error(error.message || 'Impossible de se connecter. Vérifiez que le backend est lancé.');
+      setProjects(enrichedProjects);
+      console.log(`✅ ${enrichedProjects.length} projets chargés`);
+    } catch (error) {
+      console.error('❌ Erreur chargement projets:', error);
+      // Ne pas afficher d'erreur si c'est juste une erreur réseau
     }
+  };
+
+  const loadArticles = async () => {
+    try {
+      console.log('🔄 Chargement des articles...');
+      const data = await libraryAPI.getArticles();
+      setArticles(data);
+      console.log(`✅ ${data.length} articles chargés`);
+    } catch (error) {
+      console.error('❌ Erreur chargement articles:', error);
+    }
+  };
+
+  const handleLogin = async (email: string, password: string) => {
+    console.log('🔐 Tentative de connexion:', email);
+    
+    const response = await authAPI.login(email, password);
+    
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+    
+    setCurrentUser(response.user);
+    setIsAuthenticated(true);
+    
+    // Charger les projets immédiatement
+    await loadProjects(response.user.idUtilisateur);
+    
+    setCurrentPage('dashboard');
+    console.log('✅ Connexion réussie !');
   };
 
   const handleRegister = async (data: any) => {
-    try {
-      console.log('📝 Tentative d\'inscription:', data);
-      
-      const response = await authAPI.register(data);
-      
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      setCurrentUser(response.user);
-      setIsAuthenticated(true);
-      setCurrentPage('dashboard');
-      
-      console.log('✅ Inscription réussie !');
-    } catch (error: any) {
-      console.error('❌ Erreur d\'inscription:', error);
-      throw new Error(error.message || 'Impossible de créer le compte.');
-    }
+    console.log('📝 Tentative d\'inscription:', data.email);
+    
+    const response = await authAPI.register(data);
+    
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+    
+    setCurrentUser(response.user);
+    setIsAuthenticated(true);
+    setCurrentPage('dashboard');
+    
+    console.log('✅ Inscription réussie !');
   };
 
-  const loadProjects = async () => {
-    if (!currentUser) return;
-    
-    try {
-      const data = await projectAPI.getProjects(currentUser.idUtilisateur);
-      setProjects(data);
-      console.log('✅ Projets chargés:', data.length);
-    } catch (error) {
-      console.error('❌ Erreur chargement projets:', error);
-    }
+  const handleLogout = () => {
+    console.log('👋 Déconnexion...');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    setCurrentPage('login');
+    setProjects([]);
+    setArticles([]);
+    console.log('✅ Déconnexion réussie');
   };
 
   const handleSaveProfile = async (data: any) => {
@@ -124,9 +165,10 @@ function App() {
       setCurrentUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
-      alert('Profil mis à jour avec succès');
+      alert('✅ Profil mis à jour avec succès');
     } catch (error: any) {
-      alert(error.message || 'Erreur lors de la mise à jour');
+      alert('❌ ' + (error.message || 'Erreur lors de la mise à jour'));
+      throw error;
     }
   };
 
@@ -134,16 +176,30 @@ function App() {
     if (!currentUser) return;
     
     try {
-      await projectAPI.createProject({
-        ...data,
-        idAuteur: currentUser.idUtilisateur
-      });
+      console.log('📝 Création du projet:', data.nom);
       
-      alert('Projet créé avec succès');
+      // Ajouter le statut par défaut si non défini
+      const projectData = {
+        ...data,
+        idAuteur: currentUser.idUtilisateur,
+        statut: data.statut || 'En_attente' // Statut par défaut
+      };
+      
+      const response = await projectAPI.createProject(projectData);
+      
+      console.log('✅ Projet créé avec ID:', response.idProjet);
+      
+      // Recharger IMMÉDIATEMENT les projets
+      await loadProjects(currentUser.idUtilisateur);
+      
+      alert(`✅ Projet "${data.nom}" créé avec succès !`);
+      
+      // Rediriger vers la page projets
       setCurrentPage('projects');
-      loadProjects();
     } catch (error: any) {
-      alert(error.message || 'Erreur lors de la création');
+      console.error('❌ Erreur création projet:', error);
+      alert('❌ ' + (error.message || 'Erreur lors de la création'));
+      throw error;
     }
   };
 
@@ -152,19 +208,24 @@ function App() {
     setCurrentPage('projectDetail');
   };
 
-  const loadArticles = async () => {
-    try {
-      const data = await libraryAPI.getArticles();
-      setArticles(data);
-      console.log('✅ Articles chargés:', data.length);
-    } catch (error) {
-      console.error('❌ Erreur chargement articles:', error);
+  const handleProjectsChange = async () => {
+    // Callback pour recharger les projets après modification
+    if (currentUser) {
+      await loadProjects(currentUser.idUtilisateur);
     }
   };
 
-  const handleCreateArticle = () => {
-    alert('Fonctionnalité de création d\'article en développement');
-    loadArticles();
+  const handleCreateArticle = async (articleData: any) => {
+    try {
+      console.log('📝 Création article:', articleData.libelle);
+      await libraryAPI.createArticle(articleData);
+      await loadArticles();
+      alert(`✅ Article "${articleData.libelle}" créé avec succès`);
+    } catch (error: any) {
+      console.error('❌ Erreur création article:', error);
+      alert('❌ Erreur lors de la création de l\'article');
+      throw error;
+    }
   };
 
   const getCurrentDate = () => {
@@ -174,7 +235,18 @@ function App() {
     return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
   };
 
-  // Auth pages
+  // Affichage du loader pendant la vérification de l'auth
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#1e3a8a] to-blue-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg font-medium">Chargement de Metr...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     if (currentPage === 'register') {
       return (
@@ -192,7 +264,6 @@ function App() {
     );
   }
 
-  // Main app
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
@@ -201,12 +272,12 @@ function App() {
         <Header 
           userName={currentUser?.prenom || ''}
           date={getCurrentDate()}
-          notificationCount={1}
+          notificationCount={unreadNotifications}
           onNotificationClick={() => setCurrentPage('notifications')}
           onProfileClick={() => setCurrentPage('profile')}
         />
         
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-gray-50">
           {currentPage === 'dashboard' && (
             <Dashboard 
               projects={projects}
@@ -221,13 +292,14 @@ function App() {
                 nom: currentUser.nom,
                 prenom: currentUser.prenom,
                 email: currentUser.email,
-                telephone: '',
-                dateNaissance: '',
-                genre: '',
-                pays: '',
-                langue: ''
+                telephone: currentUser.telephone || '',
+                dateNaissance: currentUser.dateNaissance || '',
+                genre: currentUser.genre || '',
+                pays: currentUser.pays || '',
+                langue: currentUser.langue || ''
               }} 
-              onSave={handleSaveProfile} 
+              onSave={handleSaveProfile}
+              onLogout={handleLogout}
             />
           )}
           
@@ -236,6 +308,7 @@ function App() {
               projects={projects}
               onCreateProject={() => setCurrentPage('createProject')}
               onOpenProject={handleOpenProject}
+              onProjectsChange={handleProjectsChange}
             />
           )}
           
@@ -249,7 +322,10 @@ function App() {
           {currentPage === 'projectDetail' && selectedProjectId && (
             <ProjectDetail 
               projectId={selectedProjectId}
-              onBack={() => setCurrentPage('projects')}
+              onBack={() => {
+                setCurrentPage('projects');
+                handleProjectsChange(); // Recharger au retour
+              }}
             />
           )}
           
@@ -263,7 +339,10 @@ function App() {
           )}
           
           {currentPage === 'notifications' && (
-            <Notifications onOpenProject={handleOpenProject} />
+            <Notifications 
+              onOpenProject={handleOpenProject}
+              onNotificationRead={() => setUnreadNotifications(0)}
+            />
           )}
           
           {currentPage === 'help' && <Help />}

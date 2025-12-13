@@ -85,12 +85,13 @@ export default function Settings() {
                 <p className="text-gray-600 mb-6">Gérez vos préférences de notification</p>
 
                 <div className="space-y-6">
+                  {/* SWITCHS CENTRÉS CORRECTEMENT */}
                   <div className="flex items-center justify-between pb-6 border-b">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium text-gray-900">Notifications par email</p>
                       <p className="text-sm text-gray-500">Recevoir des emails pour les événements importants</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
                         checked={settings.emailNotifications}
@@ -102,11 +103,11 @@ export default function Settings() {
                   </div>
 
                   <div className="flex items-center justify-between pb-6 border-b">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium text-gray-900">Mises à jour de projets</p>
                       <p className="text-sm text-gray-500">Être notifié quand un projet est modifié</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
                         checked={settings.projectUpdates}
@@ -118,11 +119,11 @@ export default function Settings() {
                   </div>
 
                   <div className="flex items-center justify-between pb-6 border-b">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium text-gray-900">Modifications de bibliothèques</p>
                       <p className="text-sm text-gray-500">Notifications pour les changements dans vos bibliothèques</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
                         checked={settings.libraryChanges}
@@ -134,11 +135,11 @@ export default function Settings() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium text-gray-900">Rapport hebdomadaire</p>
                       <p className="text-sm text-gray-500">Recevoir un résumé de votre activité chaque semaine</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
                         checked={settings.weeklyReport}
@@ -192,17 +193,17 @@ export default function Settings() {
                     />
                   </div>
 
-                  <button className="bg-[#1e3a8a] text-white px-6 py-2 rounded-lg hover:bg-[#1e40af] transition-colors font-medium">
+                  <button className="bg-[#1e3a8a] text-white px-6 py-2.5 rounded-lg hover:bg-[#1e40af] transition-colors font-medium">
                     Modifier le mot de passe
                   </button>
 
                   <div className="pt-6 border-t mt-6">
                     <div className="flex items-center justify-between">
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-gray-900">Authentification à deux facteurs</p>
                         <p className="text-sm text-gray-500">Ajoutez une couche de sécurité supplémentaire</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
+                      <label className="relative inline-flex items-center cursor-pointer ml-4">
                         <input
                           type="checkbox"
                           checked={settings.twoFactorAuth}
@@ -226,17 +227,21 @@ export default function Settings() {
                 <div className="space-y-6">
                   <div>
                     <label className="block font-medium text-gray-900 mb-2">
-                      Langue
+                      Langue <span className="text-gray-500 text-sm">(Fonctionnalité à venir)</span>
                     </label>
                     <select
                       value={settings.language}
                       onChange={(e) => setSettings({...settings, language: e.target.value})}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
+                      disabled
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-gray-50 cursor-not-allowed"
                     >
                       <option value="fr">Français</option>
                       <option value="en">English</option>
                       <option value="es">Español</option>
                     </select>
+                    <p className="text-sm text-gray-500 mt-2">
+                      ℹ️ Le changement de langue sera disponible dans une prochaine mise à jour
+                    </p>
                   </div>
 
                   <div>
@@ -273,7 +278,7 @@ export default function Settings() {
                       </div>
                       <button 
                         onClick={handleExportData}
-                        className="bg-[#1e3a8a] text-white px-6 py-2 rounded-lg hover:bg-[#1e40af] transition-colors font-medium"
+                        className="bg-[#1e3a8a] text-white px-6 py-2.5 rounded-lg hover:bg-[#1e40af] transition-colors font-medium"
                       >
                         Exporter
                       </button>
@@ -289,13 +294,14 @@ export default function Settings() {
                       </div>
                       <button 
                         onClick={handleDeleteAccount}
-                        className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                        className="bg-red-500 text-white px-6 py-2.5 rounded-lg hover:bg-red-600 transition-colors font-medium"
                       >
                         Supprimer
                       </button>
                     </div>
                   </div>
 
+                  {/* BOUTON SE DÉCONNECTER AJOUTÉ */}
                   <div className="border border-gray-200 rounded-lg p-6">
                     <div className="flex items-center gap-4">
                       <LogOut className="w-8 h-8 text-gray-500" />
@@ -305,7 +311,7 @@ export default function Settings() {
                       </div>
                       <button 
                         onClick={handleLogout}
-                        className="border border-gray-300 bg-white text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                        className="border border-gray-300 bg-white text-gray-700 px-6 py-2.5 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                       >
                         Déconnexion
                       </button>
@@ -327,7 +333,7 @@ export default function Settings() {
                   <p className="text-sm text-gray-600 mb-4">
                     La gestion d'équipe est disponible avec un compte Pro
                   </p>
-                  <button className="bg-[#f97316] text-white px-6 py-2 rounded-lg hover:bg-[#ea580c] transition-colors font-medium">
+                  <button className="bg-[#f97316] text-white px-6 py-2.5 rounded-lg hover:bg-[#ea580c] transition-colors font-medium">
                     Passer à Pro
                   </button>
                 </div>

@@ -29,7 +29,7 @@ export default function Header({
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          {/* Notifications */}
+          {/* Notifications - Pastille uniquement si > 0 */}
           <button
             onClick={onNotificationClick}
             className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
