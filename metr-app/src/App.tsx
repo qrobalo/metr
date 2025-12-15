@@ -12,9 +12,10 @@ import Library from './pages/Library';
 import Notifications from './pages/Notifications';
 import Help from './pages/Help';
 import Settings from './pages/Settings';
+import PaymentPage from './pages/PaymentPage';
 import { authAPI, userAPI, projectAPI, libraryAPI } from './services/api';
 
-type Page = 'login' | 'register' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'projectDetail' | 'library' | 'notifications' | 'help' | 'settings';
+type Page = 'login' | 'register' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'projectDetail' | 'library' | 'notifications' | 'help' | 'settings' | 'payment';
 
 interface User {
   idUtilisateur: number;
@@ -228,6 +229,11 @@ function App() {
     }
   };
 
+  const handlePaymentSuccess = () => {
+    alert('🎉 Bienvenue dans Metr Pro !\n\nToutes les fonctionnalités Pro sont maintenant disponibles.');
+    setCurrentPage('settings');
+  };
+
   const getCurrentDate = () => {
     const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
     const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -260,6 +266,16 @@ function App() {
       <Login 
         onLogin={handleLogin}
         onNavigateToRegister={() => setCurrentPage('register')}
+      />
+    );
+  }
+
+  // Page de paiement (affichage plein écran sans sidebar/header)
+  if (currentPage === 'payment') {
+    return (
+      <PaymentPage
+        onBack={() => setCurrentPage('settings')}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     );
   }
@@ -347,7 +363,12 @@ function App() {
           
           {currentPage === 'help' && <Help />}
           
-          {currentPage === 'settings' && <Settings />}
+          {currentPage === 'settings' && (
+            <Settings 
+              onLogout={handleLogout}
+              onNavigateToPayment={() => setCurrentPage('payment')}
+            />
+          )}
         </main>
       </div>
     </div>

@@ -1,22 +1,13 @@
 import React, { useState } from 'react';
-import { Bell, Shield, Users, Palette, Download, Trash2, LogOut, Save, Eye, EyeOff, Key, Globe, Clock, FileText, Database, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Bell, Users, Globe, Download, Trash2, LogOut, Database, CheckCircle, AlertCircle, FileText, Clock, XCircle } from 'lucide-react';
 
 interface SettingsProps {
-  onLogout: () => void;
+  onLogout?: () => void;
+  onNavigateToPayment?: () => void;
 }
 
-export default function Settings({ onLogout }: SettingsProps) {
+export default function Settings({ onLogout, onNavigateToPayment }: SettingsProps) {
   const [activeTab, setActiveTab] = useState('notifications');
-  const [showPassword, setShowPassword] = useState({
-    current: false,
-    new: false,
-    confirm: false
-  });
-  const [passwordData, setPasswordData] = useState({
-    current: '',
-    new: '',
-    confirm: ''
-  });
   const [settings, setSettings] = useState({
     emailNotifications: true,
     projectUpdates: true,
@@ -24,21 +15,14 @@ export default function Settings({ onLogout }: SettingsProps) {
     weeklyReport: true,
     teamInvitations: true,
     documentUploads: false,
-    twoFactorAuth: false,
-    sessionTimeout: '30',
-    darkMode: false,
     language: 'fr',
     dateFormat: 'dd/mm/yyyy',
-    timeZone: 'Europe/Paris',
-    theme: 'blue',
-    density: 'comfortable'
+    timeZone: 'Europe/Paris'
   });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
   const tabs = [
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Sécurité', icon: Shield },
-    { id: 'appearance', label: 'Apparence', icon: Palette },
     { id: 'preferences', label: 'Préférences', icon: Globe },
     { id: 'team', label: 'Équipe', icon: Users },
     { id: 'data', label: 'Données & Compte', icon: Download }
@@ -62,30 +46,9 @@ export default function Settings({ onLogout }: SettingsProps) {
     }, 500);
   };
 
-  const handleChangePassword = () => {
-    if (!passwordData.current || !passwordData.new || !passwordData.confirm) {
-      alert('⚠️ Veuillez remplir tous les champs');
-      return;
-    }
-
-    if (passwordData.new.length < 8) {
-      alert('⚠️ Le mot de passe doit contenir au moins 8 caractères');
-      return;
-    }
-
-    if (passwordData.new !== passwordData.confirm) {
-      alert('⚠️ Les mots de passe ne correspondent pas');
-      return;
-    }
-
-    // Simulation API call
-    alert('✅ Mot de passe modifié avec succès !');
-    setPasswordData({ current: '', new: '', confirm: '' });
-  };
-
   const handleLogout = () => {
     if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-      onLogout();
+      if (onLogout) onLogout();
     }
   };
 
@@ -99,9 +62,15 @@ export default function Settings({ onLogout }: SettingsProps) {
 
   const handleDeleteAccount = () => {
     if (confirm('⚠️ ATTENTION ⚠️\n\nÊtes-vous VRAIMENT sûr de vouloir supprimer votre compte ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Tous vos projets\n- Toutes vos bibliothèques\n- Tous vos documents\n- Toutes vos données personnelles')) {
-      if (confirm('Dernière confirmation : Tapez "SUPPRIMER" pour confirmer')) {
+      if (confirm('Dernière confirmation : Cette action est définitive')) {
         alert('Pour votre sécurité, veuillez contacter le support à support@metr.fr pour supprimer définitivement votre compte.');
       }
+    }
+  };
+
+  const handleUpgradeToPro = () => {
+    if (onNavigateToPayment) {
+      onNavigateToPayment();
     }
   };
 
@@ -271,242 +240,6 @@ export default function Settings({ onLogout }: SettingsProps) {
               </div>
             )}
 
-            {/* SECURITY */}
-            {activeTab === 'security' && (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <Shield className="w-8 h-8 text-[#1e3a8a]" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">Sécurité</h3>
-                    <p className="text-gray-600">Protégez votre compte avec un mot de passe fort</p>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {/* Change Password Section */}
-                  <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Key className="w-5 h-5" />
-                      Modifier le mot de passe
-                    </h4>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block font-medium text-gray-900 mb-2">
-                          Mot de passe actuel
-                        </label>
-                        <div className="relative">
-                          <input
-                            type={showPassword.current ? 'text' : 'password'}
-                            value={passwordData.current}
-                            onChange={(e) => setPasswordData({...passwordData, current: e.target.value})}
-                            placeholder="••••••••"
-                            className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword({...showPassword, current: !showPassword.current})}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                          >
-                            {showPassword.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block font-medium text-gray-900 mb-2">
-                          Nouveau mot de passe
-                        </label>
-                        <div className="relative">
-                          <input
-                            type={showPassword.new ? 'text' : 'password'}
-                            value={passwordData.new}
-                            onChange={(e) => setPasswordData({...passwordData, new: e.target.value})}
-                            placeholder="••••••••"
-                            className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword({...showPassword, new: !showPassword.new})}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                          >
-                            {showPassword.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">Minimum 8 caractères</p>
-                      </div>
-
-                      <div>
-                        <label className="block font-medium text-gray-900 mb-2">
-                          Confirmer le mot de passe
-                        </label>
-                        <div className="relative">
-                          <input
-                            type={showPassword.confirm ? 'text' : 'password'}
-                            value={passwordData.confirm}
-                            onChange={(e) => setPasswordData({...passwordData, confirm: e.target.value})}
-                            placeholder="••••••••"
-                            className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword({...showPassword, confirm: !showPassword.confirm})}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                          >
-                            {showPassword.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <button 
-                        onClick={handleChangePassword}
-                        className="bg-[#1e3a8a] text-white px-6 py-2.5 rounded-lg hover:bg-[#1e40af] transition-colors font-medium flex items-center gap-2"
-                      >
-                        <Save className="w-4 h-4" />
-                        Modifier le mot de passe
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* 2FA Section */}
-                  <div className="border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <Shield className="w-5 h-5" />
-                          Authentification à deux facteurs (2FA)
-                        </h4>
-                        <p className="text-sm text-gray-600 mb-4">
-                          Ajoutez une couche de sécurité supplémentaire avec un code à usage unique
-                        </p>
-                        {settings.twoFactorAuth && (
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-                            <p className="text-sm text-green-800 flex items-center gap-2">
-                              <CheckCircle className="w-4 h-4" />
-                              L'authentification à deux facteurs est activée
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <ToggleSwitch 
-                        checked={settings.twoFactorAuth}
-                        onChange={() => toggleSetting('twoFactorAuth')}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Session Timeout */}
-                  <div className="border border-gray-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Clock className="w-5 h-5" />
-                      Expiration de session
-                    </h4>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Déconnexion automatique après inactivité
-                    </p>
-                    <select
-                      value={settings.sessionTimeout}
-                      onChange={(e) => updateSetting('sessionTimeout', e.target.value)}
-                      className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
-                    >
-                      <option value="15">15 minutes</option>
-                      <option value="30">30 minutes</option>
-                      <option value="60">1 heure</option>
-                      <option value="240">4 heures</option>
-                      <option value="never">Jamais</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* APPEARANCE */}
-            {activeTab === 'appearance' && (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <Palette className="w-8 h-8 text-[#1e3a8a]" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">Apparence</h3>
-                    <p className="text-gray-600">Personnalisez l'interface selon vos préférences</p>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {/* Theme */}
-                  <div className="border border-gray-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-gray-900 mb-4">Thème de couleur</h4>
-                    <div className="grid grid-cols-3 gap-4">
-                      {['blue', 'purple', 'green'].map(color => (
-                        <button
-                          key={color}
-                          onClick={() => updateSetting('theme', color)}
-                          className={`p-4 rounded-lg border-2 transition-all ${
-                            settings.theme === color
-                              ? 'border-[#1e3a8a] bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className={`w-full h-12 rounded ${
-                            color === 'blue' ? 'bg-blue-500' :
-                            color === 'purple' ? 'bg-purple-500' :
-                            'bg-green-500'
-                          } mb-2`}></div>
-                          <p className="text-sm font-medium capitalize">{color === 'blue' ? 'Bleu' : color === 'purple' ? 'Violet' : 'Vert'}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Density */}
-                  <div className="border border-gray-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-gray-900 mb-4">Densité d'affichage</h4>
-                    <div className="space-y-3">
-                      {[
-                        { value: 'compact', label: 'Compacte', desc: 'Plus d\'informations à l\'écran' },
-                        { value: 'comfortable', label: 'Confortable', desc: 'Équilibre entre espace et contenu' },
-                        { value: 'spacious', label: 'Espacée', desc: 'Plus d\'espace entre les éléments' }
-                      ].map(option => (
-                        <label
-                          key={option.value}
-                          className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                            settings.density === option.value
-                              ? 'border-[#1e3a8a] bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="density"
-                            value={option.value}
-                            checked={settings.density === option.value}
-                            onChange={(e) => updateSetting('density', e.target.value)}
-                            className="mr-3"
-                          />
-                          <div>
-                            <p className="font-medium text-gray-900">{option.label}</p>
-                            <p className="text-sm text-gray-500">{option.desc}</p>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Dark Mode - Désactivé */}
-                  <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 opacity-60">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 mb-2">Mode sombre</h4>
-                        <p className="text-sm text-gray-600">
-                          Disponible prochainement 🌙
-                        </p>
-                      </div>
-                      <div className="w-11 h-6 bg-gray-300 rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* PREFERENCES */}
             {activeTab === 'preferences' && (
               <div>
@@ -616,7 +349,10 @@ export default function Settings({ onLogout }: SettingsProps) {
                     </ul>
                   </div>
 
-                  <button className="bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all font-bold text-lg">
+                  <button 
+                    onClick={handleUpgradeToPro}
+                    className="bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all font-bold text-lg"
+                  >
                     Passer à Pro - 29€/mois
                   </button>
                   <p className="text-xs text-gray-500 mt-3">Essai gratuit de 14 jours, sans engagement</p>
