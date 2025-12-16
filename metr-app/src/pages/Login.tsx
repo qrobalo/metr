@@ -65,7 +65,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
-                className="w-full px-3 py-2 pr-0 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="w-full max-w-xs px-3 py-2 pr-0 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
                 disabled={isLoading}
               />
             </div>
@@ -81,13 +81,13 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Votre mot de passe"
-                  className="w-full px-3 py-2 pr-0 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] box-border"
+                  className="w-full max-w-xs px-3 py-2 pr-0 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] box-border"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10"
+                  className="absolute left-74 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-0 p-0 m-0"
                   disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -96,7 +96,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
               <div className="text-right mt-2">
                 <button
                   type="button"
-                  className="text-sm text-[#1E3A8A] hover:text-[#142a5e] font-medium"
+                  className="text-sm text-[#1E3A8A] hover:text-[#142a5e] font-medium bg-transparent border-0 p-0 m-0"
                 >
                   Mot de passe oublié ?
                 </button>
@@ -107,7 +107,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
             <button 
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full bg-[#1E3A8A] text-white py-2.5 rounded-md hover:bg-[#142a5e] transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+              className="w-full max-w-sm bg-[#1E3A8A] text-white py-2.5 rounded-md hover:bg-[#142a5e] transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
             >
               {isLoading ? (
                 <>
@@ -125,7 +125,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
               <button
                 type="button"
                 onClick={onNavigateToRegister}
-                className="text-[#1E3A8A] hover:text-[#142a5e] font-medium transition-colors"
+                className="text-[#1E3A8A] hover:text-[#142a5e] font-medium transition-colors bg-transparent border-0 p-0 m-0"
                 disabled={isLoading}
               >
                 Inscription
