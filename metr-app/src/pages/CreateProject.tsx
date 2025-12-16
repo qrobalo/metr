@@ -104,32 +104,34 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
           <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
             <FileText className="w-5 h-5 text-blue-600" />
           </div>
-          <div>
+          
             <h3 className="text-xl font-bold text-gray-900">
               Informations du projet
             </h3>
             <p className="text-sm text-gray-500">
               Les champs marqués d'un * sont obligatoires
             </p>
-          </div>
+          
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           {/* Nom du projet */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Nom du projet<span className="text-red-500">*</span>
             </label>
+
             <input
               type="text"
               value={formData.nom}
               onChange={(e) => handleChange('nom', e.target.value)}
               placeholder="Ex: Villa Méditerranée"
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                errors.nom 
-                  ? 'border-red-300 focus:ring-red-500' 
-                  : 'border-gray-300 focus:ring-[#1e3a8a]'
-              }`}
+              className={`w-full max-w-md px-4 py-3 border rounded-lg 
+                focus:outline-none focus:ring-2 transition-all ${
+                  errors.nom 
+                    ? 'border-red-300 focus:ring-red-500' 
+                    : 'border-gray-300 focus:ring-[#1e3a8a]'
+                }`}
             />
             {errors.nom && (
               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -149,7 +151,7 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
               value={formData.client}
               onChange={(e) => handleChange('client', e.target.value)}
               placeholder="Ex: Dupont Immobilier"
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+              className={`w-full max-w-md px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                 errors.client 
                   ? 'border-red-300 focus:ring-red-500' 
                   : 'border-gray-300 focus:ring-[#1e3a8a]'
@@ -173,7 +175,7 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
               value={formData.referenceInterne}
               onChange={(e) => handleChange('referenceInterne', e.target.value)}
               placeholder="Ex: PRJ-2025-042"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+              className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
             />
           </div>
 
@@ -185,7 +187,7 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
             <select
               value={formData.typologie}
               onChange={(e) => handleChange('typologie', e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
+              className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
             >
               <option value="">Sélectionner une typologie</option>
               <option value="residentiel">Résidentiel</option>
@@ -205,7 +207,7 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
               value={formData.adresse}
               onChange={(e) => handleChange('adresse', e.target.value)}
               placeholder="Ex: 12 Avenue des Plans, 75001 Paris"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+              className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
             />
           </div>
 
@@ -219,9 +221,9 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
                 type="date"
                 value={formData.dateLivraison}
                 onChange={(e) => handleChange('dateLivraison', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+                className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
               />
-              <Calendar className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+              
             </div>
           </div>
 
@@ -233,7 +235,7 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
             <select
               value={formData.statut}
               onChange={(e) => handleChange('statut', e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
+              className="w-full max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
             >
               <option value="En_attente">Brouillon</option>
               <option value="En_cours">En cours</option>

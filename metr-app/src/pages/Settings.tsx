@@ -260,7 +260,7 @@ export default function Settings({ onLogout, onNavigateToPayment }: SettingsProp
                       value={settings.language}
                       onChange={(e) => updateSetting('language', e.target.value)}
                       disabled
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-gray-50 cursor-not-allowed"
+                      className="w-full max-w-xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-gray-50 cursor-not-allowed"
                     >
                       <option value="fr">Français</option>
                       <option value="en">English</option>
@@ -280,7 +280,7 @@ export default function Settings({ onLogout, onNavigateToPayment }: SettingsProp
                     <select
                       value={settings.timeZone}
                       onChange={(e) => updateSetting('timeZone', e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
+                      className="w-full max-w-xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
                     >
                       <option value="Europe/Paris">Paris (GMT+1)</option>
                       <option value="Europe/London">Londres (GMT+0)</option>
@@ -296,7 +296,7 @@ export default function Settings({ onLogout, onNavigateToPayment }: SettingsProp
                     <select
                       value={settings.dateFormat}
                       onChange={(e) => updateSetting('dateFormat', e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
+                      className="w-full max-w-xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
                     >
                       <option value="dd/mm/yyyy">JJ/MM/AAAA (15/12/2025)</option>
                       <option value="mm/dd/yyyy">MM/JJ/AAAA (12/15/2025)</option>

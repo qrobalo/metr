@@ -187,7 +187,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher un article..."
-            className="w-full pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
+            className="w-full max-w-3xs pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
           />
         </div>
       </div>
@@ -283,7 +283,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
             </div>
             <p className="text-sm text-gray-600 mb-6">Renseignez les informations de l'article ci-dessous.</p>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Désignation <span className="text-red-500">*</span>
@@ -293,7 +293,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                   placeholder="Ex: Béton armé C25/30"
                   value={newArticle.libelle}
                   onChange={(e) => setNewArticle({...newArticle, libelle: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
+                  className="w-full max-w-2xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
                 />
               </div>
 
@@ -326,7 +326,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                   placeholder="Ex: Fondation"
                   value={newArticle.sousCategorie}
                   onChange={(e) => setNewArticle({...newArticle, sousCategorie: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
+                  className="w-full max-w-2xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
                 />
               </div>
 
@@ -337,7 +337,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                 <select 
                   value={newArticle.unite}
                   onChange={(e) => setNewArticle({...newArticle, unite: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
+                  className="w-full max-w-xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] bg-white"
                 >
                   <option value="">Sélectionner</option>
                   <option value="m">M (mètre)</option>
@@ -358,7 +358,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                     placeholder="0.00"
                     value={newArticle.prix}
                     onChange={(e) => setNewArticle({...newArticle, prix: e.target.value})}
-                    className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
+                    className="w-full max-w-3xs px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
                   />
                   <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">€</span>
                 </div>
@@ -371,7 +371,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                   placeholder="Description détaillée de l'article"
                   value={newArticle.description}
                   onChange={(e) => setNewArticle({...newArticle, description: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] resize-none"
+                  className="w-full max-w-2xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] resize-none"
                 />
               </div>
             </div>
@@ -502,7 +502,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                 placeholder="Ex: ATTIC+ 2025"
                 value={importLibraryName}
                 onChange={(e) => setImportLibraryName(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
+                className="w-full max-w-3xs px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]"
               />
             </div>
 

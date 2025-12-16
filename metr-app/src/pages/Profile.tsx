@@ -93,7 +93,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                   type="text"
                   value={formData.nom}
                   onChange={(e) => handleChange('nom', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+                  className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
                 />
               ) : (
                 <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -114,7 +114,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                   type="text"
                   value={formData.prenom}
                   onChange={(e) => handleChange('prenom', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+                  className="w-full max-w-2xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
                 />
               ) : (
                 <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -135,7 +135,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+                  className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
                 />
               ) : (
                 <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -156,7 +156,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                   type="tel"
                   value={formData.telephone}
                   onChange={(e) => handleChange('telephone', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+                  className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
                 />
               ) : (
                 <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -178,7 +178,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                     type="date"
                     value={formData.dateNaissance}
                     onChange={(e) => handleChange('dateNaissance', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+                    className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
                   />
                 </div>
               ) : (
@@ -201,7 +201,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                 <select
                   value={formData.genre}
                   onChange={(e) => handleChange('genre', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
+                  className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
                 >
                   <option value="">Sélectionner</option>
                   <option value="M">Homme</option>
@@ -228,7 +228,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                 <select
                   value={formData.pays}
                   onChange={(e) => handleChange('pays', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
+                  className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
                 >
                   <option value="">Sélectionner</option>
                   <option value="France">France</option>
@@ -255,7 +255,7 @@ export default function Profile({ userData, onSave, onLogout }: ProfileProps) {
                 <select
                   value={formData.langue}
                   onChange={(e) => handleChange('langue', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
+                  className="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all bg-white"
                 >
                   <option value="">Sélectionner</option>
                   <option value="Français">Français</option>
