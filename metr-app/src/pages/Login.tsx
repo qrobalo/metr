@@ -4,9 +4,10 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<void>;
   onNavigateToRegister: () => void;
+  onForgotPassword: () => void;
 }
 
-export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
+export default function Login({ onLogin, onNavigateToRegister, onForgotPassword }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -81,13 +82,13 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Votre mot de passe"
-                  className="w-full px-3 py-2 pr-0 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] box-border"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] box-border"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10 bg-transparent border-0 p-0"
                   disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -96,6 +97,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
               <div className="text-right mt-2">
                 <button
                   type="button"
+                  onClick={onForgotPassword}
                   className="text-sm text-[#1E3A8A] hover:text-[#142a5e] font-medium"
                 >
                   Mot de passe oublié ?

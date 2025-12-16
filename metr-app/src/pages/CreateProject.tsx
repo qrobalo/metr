@@ -73,36 +73,26 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
         <p className="text-gray-600">Remplissez les informations pour créer votre projet</p>
       </div>
 
-      {/* Progress Steps */}
+      {/* Progress Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-center">
           <div className="flex items-center">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-[#1e3a8a] text-white rounded-full flex items-center justify-center font-bold">
-                1
-              </div>
-              <div className="ml-3 mr-8">
-                <p className="text-sm font-medium text-[#1e3a8a]">Informations</p>
-              </div>
+            <div className="w-12 h-12 bg-[#1e3a8a] text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+              <FileText className="w-6 h-6" />
             </div>
-            <div className="w-16 h-0.5 bg-gray-300"></div>
-            <div className="flex items-center ml-8">
-              <div className="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">
-                2
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-500">Finalisation</p>
-              </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-[#1e3a8a]">Création du projet</p>
+              <p className="text-xs text-gray-500">Remplissez les informations ci-dessous</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Informations du projet */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-100">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <FileText className="w-5 h-5 text-blue-600" />
+      <div className="bg-white rounded-xl shadow-md p-6 sm:p-8 mb-6 border border-gray-100">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <FileText className="w-6 h-6 text-blue-600" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900">
@@ -114,7 +104,7 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
           {/* Nom du projet */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -214,15 +204,12 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Date de livraison prévue
             </label>
-            <div className="relative">
-              <input
-                type="date"
-                value={formData.dateLivraison}
-                onChange={(e) => handleChange('dateLivraison', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
-              />
-              <Calendar className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
-            </div>
+            <input
+              type="date"
+              value={formData.dateLivraison}
+              onChange={(e) => handleChange('dateLivraison', e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] transition-all"
+            />
           </div>
 
           {/* Statut initial */}
@@ -243,23 +230,23 @@ export default function CreateProject({ onCancel, onCreate }: CreateProjectProps
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3">
+      <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8">
         <button 
           onClick={onCancel}
           disabled={isSubmitting}
-          className="border-2 border-gray-300 bg-white text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium order-2 sm:order-1 disabled:opacity-50"
+          className="border-2 border-gray-300 bg-white text-gray-700 px-10 py-3.5 rounded-lg hover:bg-gray-50 transition-colors font-semibold order-2 sm:order-1 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Annuler
         </button>
         <button 
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all font-medium order-1 sm:order-2 shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+          className="bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white px-10 py-3.5 rounded-lg hover:shadow-lg transition-all font-semibold order-1 sm:order-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              Création...
+              Création en cours...
             </>
           ) : (
             'Créer le projet'

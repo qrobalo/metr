@@ -1,15 +1,45 @@
-import React from 'react';
-import { Plus, ExternalLink, TrendingUp, MoreVertical } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, ExternalLink, TrendingUp, MoreVertical, Edit, Archive, Trash2, CheckCircle } from 'lucide-react';
+import { projectAPI } from '../services/api';
 
-interface DashboardProps {
-  projects: any[];
-  onCreateProject: () => void;
-  onOpenProject: (id: number) => void;
+interface Project {
+  idProjet: number;
+  nom: string;
+  client?: string;
+  statut: string;
+  dateCreation: string;
 }
 
-export default function Dashboard({ projects, onCreateProject, onOpenProject }: DashboardProps) {
+interface DashboardProps {
+  projects: Project[];
+  onCreateProject: () => void;
+  onOpenProject: (id: number) => void;
+  onProjectsChange: () => void;
+}
+
+export default function Dashboard({ projects, onCreateProject, onOpenProject, onProjectsChange }: DashboardProps) {
+  const [localProjects, setLocalProjects] = useState(projects);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setLocalProjects(projects);
+  }, [projects]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Prendre seulement les 6 projets les plus récents (non archivés)
-  const activeProjects = projects.filter(p => p.statut !== 'Archive');
+  const activeProjects = localProjects.filter(p => p.statut !== 'Archive');
   const recentProjects = activeProjects.slice(0, 6);
 
   // Mapper les statuts de la BDD aux affichages
@@ -26,14 +56,14 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
   // Calculer les statistiques RÉELLES
   const stats = {
     projetsActifs: activeProjects.length,
-    projetsTotal: projects.length,
-    rapportsCeMois: projects.filter(p => {
+    projetsTotal: localProjects.length,
+    rapportsCeMois: localProjects.filter(p => {
       const projectDate = new Date(p.dateCreation);
       const now = new Date();
       return projectDate.getMonth() === now.getMonth() && 
              projectDate.getFullYear() === now.getFullYear();
     }).length,
-    exportsRecents: projects.filter(p => p.statut === 'Termine').length
+    exportsRecents: localProjects.filter(p => p.statut === 'Termine').length
   };
 
   const formatDate = (dateString: string) => {
@@ -47,7 +77,7 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
 
   // Calculer la tendance pour les projets actifs
   const calculateTrend = () => {
-    const lastMonth = projects.filter(p => {
+    const lastMonth = localProjects.filter(p => {
       const projectDate = new Date(p.dateCreation);
       const now = new Date();
       const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -67,9 +97,83 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
 
   const trend = calculateTrend();
 
+  const handleChangeStatus = async (projectId: number, newStatus: string, projectName: string) => {
+    if (isUpdating) return;
+    
+    setIsUpdating(true);
+    setOpenMenuId(null);
+
+    try {
+      // Appel API pour mettre à jour le statut
+      await projectAPI.updateProject(projectId, { statut: newStatus });
+      
+      // Recharger les projets depuis le serveur pour avoir les données à jour
+      await onProjectsChange();
+      
+      const statusLabels: any = {
+        'En_cours': 'en cours',
+        'Termine': 'terminé',
+        'En_attente': 'brouillon',
+        'Archive': 'archivé'
+      };
+      
+      alert(`✓ Projet "${projectName}" marqué comme ${statusLabels[newStatus]}`);
+    } catch (error: any) {
+      alert(`❌ Erreur: ${error.message || 'Impossible de modifier le projet'}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleArchiveProject = async (projectId: number, projectName: string) => {
+    if (isUpdating) return;
+    
+    if (!confirm(`Archiver le projet "${projectName}" ?`)) return;
+    
+    setIsUpdating(true);
+    setOpenMenuId(null);
+
+    try {
+      // Appel API pour archiver
+      await projectAPI.updateProject(projectId, { statut: 'Archive' });
+      
+      // Recharger les projets depuis le serveur
+      await onProjectsChange();
+      
+      alert(`✓ Projet "${projectName}" archivé avec succès`);
+    } catch (error: any) {
+      alert(`❌ Erreur: ${error.message || 'Impossible d\'archiver le projet'}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: number, projectName: string) => {
+    if (isUpdating) return;
+    
+    if (!confirm(`⚠️ ATTENTION\n\nSupprimer définitivement "${projectName}" ?\n\nCette action est irréversible.`)) return;
+    
+    setIsUpdating(true);
+    setOpenMenuId(null);
+
+    try {
+      // Appel API pour supprimer
+      await projectAPI.deleteProject(projectId);
+      
+      // Recharger les projets depuis le serveur
+      await onProjectsChange();
+      
+      alert(`✓ Projet "${projectName}" supprimé`);
+    } catch (error: any) {
+      alert(`❌ Erreur: ${error.message || 'Impossible de supprimer le projet'}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="p-8 max-w-[1400px] mx-auto">
+    <div className="min-h-screen bg-[#F8FAFC] relative">
+      <div className={`p-8 max-w-[1400px] mx-auto transition-all duration-300 ${isUpdating ? 'blur-sm' : ''}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold text-[#1E293B]">Mes projets récents</h1>
@@ -104,9 +208,58 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
                         </p>
                       </div>
                       
-                      <button className="p-1 hover:bg-[#F1F5F9] rounded transition-colors">
-                        <MoreVertical className="w-5 h-5 text-[#94A3B8]" />
-                      </button>
+                      <div className="relative" ref={openMenuId === project.idProjet ? menuRef : null}>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === project.idProjet ? null : project.idProjet);
+                          }}
+                          disabled={isUpdating}
+                          className="p-1 hover:bg-[#F1F5F9] rounded transition-colors disabled:opacity-50"
+                        >
+                          <MoreVertical className="w-5 h-5 text-[#94A3B8]" />
+                        </button>
+                        
+                        {openMenuId === project.idProjet && (
+                          <div className="absolute right-0 top-full mt-1 bg-white border border-[#E2E8F0] rounded-lg shadow-xl py-1 min-w-[180px] z-50">
+                            {project.statut !== 'En_cours' && (
+                              <button
+                                onClick={() => handleChangeStatus(project.idProjet, 'En_cours', project.nom)}
+                                className="w-full text-left px-4 py-2 text-sm hover:bg-[#F8FAFC] flex items-center gap-2 text-[#475569]"
+                              >
+                                <Edit className="w-4 h-4" />
+                                Marquer en cours
+                              </button>
+                            )}
+                            {project.statut !== 'Termine' && (
+                              <button
+                                onClick={() => handleChangeStatus(project.idProjet, 'Termine', project.nom)}
+                                className="w-full text-left px-4 py-2 text-sm hover:bg-[#F8FAFC] flex items-center gap-2 text-[#475569]"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                                Marquer terminé
+                              </button>
+                            )}
+                            {project.statut !== 'Archive' && (
+                              <button
+                                onClick={() => handleArchiveProject(project.idProjet, project.nom)}
+                                className="w-full text-left px-4 py-2 text-sm hover:bg-[#F8FAFC] flex items-center gap-2 text-[#475569]"
+                              >
+                                <Archive className="w-4 h-4" />
+                                Archiver
+                              </button>
+                            )}
+                            <div className="border-t border-[#E2E8F0] my-1"></div>
+                            <button
+                              onClick={() => handleDeleteProject(project.idProjet, project.nom)}
+                              className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Supprimer
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Date */}
@@ -184,7 +337,7 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
               </p>
             </div>
 
-            {/* mt'metrés ce mois */}
+            {/* Projets créés ce mois */}
             <div className="bg-white rounded-xl border border-[#E2E8F0] p-6">
               <div className="flex items-start justify-between mb-4">
                 <h3 className="text-sm font-medium text-[#64748B]">Projets créés ce mois</h3>
@@ -193,7 +346,7 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
                 {stats.rapportsCeMois > 0 ? `${stats.rapportsCeMois} ${stats.rapportsCeMois > 999 ? 'k' : ''}` : '0'}
               </p>
               <p className="text-xs text-[#64748B]">
-                {stats.rapportsCeMois === 0 ? 'Aucun ce mois-ci' : ``}
+                {stats.rapportsCeMois === 0 ? 'Aucun ce mois-ci' : ''}
               </p>
             </div>
 
@@ -212,6 +365,18 @@ export default function Dashboard({ projects, onCreateProject, onOpenProject }: 
           </div>
         </div>
       </div>
+
+      {/* Loading Overlay avec effet de flou */}
+      {isUpdating && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-white rounded-lg p-6 shadow-2xl pointer-events-auto">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E40AF]"></div>
+              <p className="text-[#0F172A] font-medium">Mise à jour en cours...</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
