@@ -32,7 +32,7 @@ export default function Header({
           {/* Notifications - Pastille uniquement si > 0 */}
           <button
             onClick={onNotificationClick}
-            className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors bg-transparent border-0 p-0 m-0"
           >
             <Bell className="w-6 h-6 text-gray-600" />
             {notificationCount > 0 && (
@@ -45,7 +45,7 @@ export default function Header({
           {/* Profile */}
           <button
             onClick={onProfileClick}
-            className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+            className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors bg-transparent border-0 p-0 m-0"
           >
             <User className="w-6 h-6 text-gray-600" />
           </button>

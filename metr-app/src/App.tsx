@@ -3,6 +3,7 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Projects from './pages/Projects';
@@ -15,7 +16,7 @@ import Settings from './pages/Settings';
 import PaymentPage from './pages/PaymentPage';
 import { authAPI, userAPI, projectAPI, libraryAPI } from './services/api';
 
-type Page = 'login' | 'register' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'projectDetail' | 'library' | 'notifications' | 'help' | 'settings' | 'payment';
+type Page = 'login' | 'register' | 'forgotPassword' | 'dashboard' | 'profile' | 'projects' | 'createProject' | 'projectDetail' | 'library' | 'notifications' | 'help' | 'settings' | 'payment';
 
 interface User {
   idUtilisateur: number;
@@ -144,6 +145,23 @@ function App() {
     console.log('✅ Inscription réussie !');
   };
 
+  const handleForgotPassword = async (email: string) => {
+    try {
+      console.log('🔑 Demande de réinitialisation pour:', email);
+      
+      // Appel API pour envoyer l'email de réinitialisation
+      // await authAPI.forgotPassword(email);
+      
+      // Simulation d'un délai
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log('✅ Email de réinitialisation envoyé');
+    } catch (error: any) {
+      console.error('❌ Erreur réinitialisation:', error);
+      throw new Error(error.message || 'Erreur lors de l\'envoi de l\'email');
+    }
+  };
+
   const handleLogout = () => {
     console.log('👋 Déconnexion...');
     localStorage.removeItem('token');
@@ -262,10 +280,21 @@ function App() {
         />
       );
     }
+    
+    if (currentPage === 'forgotPassword') {
+      return (
+        <ForgotPassword
+          onBack={() => setCurrentPage('login')}
+          onResetPassword={handleForgotPassword}
+        />
+      );
+    }
+    
     return (
       <Login 
         onLogin={handleLogin}
         onNavigateToRegister={() => setCurrentPage('register')}
+        onForgotPassword={() => setCurrentPage('forgotPassword')}
       />
     );
   }
@@ -299,6 +328,7 @@ function App() {
               projects={projects}
               onCreateProject={() => setCurrentPage('createProject')}
               onOpenProject={handleOpenProject}
+              onProjectsChange={handleProjectsChange}
             />
           )}
           

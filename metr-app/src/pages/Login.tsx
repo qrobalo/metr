@@ -4,9 +4,10 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<void>;
   onNavigateToRegister: () => void;
+  onForgotPassword: () => void;
 }
 
-export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
+export default function Login({ onLogin, onNavigateToRegister, onForgotPassword }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -96,6 +97,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
               <div className="text-right mt-2">
                 <button
                   type="button"
+                  onClick={onForgotPassword}
                   className="text-sm text-[#1E3A8A] hover:text-[#142a5e] font-medium bg-transparent border-0 p-0 m-0"
                 >
                   Mot de passe oublié ?

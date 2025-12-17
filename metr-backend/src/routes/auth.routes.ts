@@ -51,6 +51,7 @@ router.post("/register", async (req: Request, res: Response) => {
         nom,
         prenom,
         email,
+        telephone: telephone || '', // ✅ AJOUTER le téléphone
         role: "Utilisateur",
       },
     });
@@ -71,8 +72,9 @@ router.post("/login", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email et mot de passe requis" });
     }
 
+    // ✅ AJOUTER telephone, dateNaissance, genre, pays, langue dans la requête
     const [rows]: any = await pool.execute(
-      "SELECT idUtilisateur, nom, prenom, email, role, password FROM Utilisateurs WHERE email = ?",
+      "SELECT idUtilisateur, nom, prenom, email, role, password, telephone, dateNaissance, genre, pays, langue FROM Utilisateurs WHERE email = ?",
       [email]
     );
 
@@ -94,12 +96,18 @@ router.post("/login", async (req: Request, res: Response) => {
       { expiresIn: "7d" }
     );
 
+    // ✅ INCLURE tous les champs dans l'objet user retourné
     const userSafe = {
       idUtilisateur: user.idUtilisateur,
       nom: user.nom,
       prenom: user.prenom,
       email: user.email,
       role: user.role,
+      telephone: user.telephone || '',
+      dateNaissance: user.dateNaissance || '',
+      genre: user.genre || '',
+      pays: user.pays || '',
+      langue: user.langue || ''
     };
 
     return res.json({ token, user: userSafe });

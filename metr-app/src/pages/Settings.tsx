@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Users, Globe, Download, Trash2, LogOut, Database, CheckCircle, AlertCircle, FileText, Clock, XCircle } from 'lucide-react';
+import { Bell, Globe, Download, Trash2, LogOut, Database, CheckCircle, AlertCircle, FileText, Clock, XCircle } from 'lucide-react';
 
 interface SettingsProps {
   onLogout?: () => void;
@@ -24,7 +24,6 @@ export default function Settings({ onLogout, onNavigateToPayment }: SettingsProp
   const tabs = [
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'preferences', label: 'Préférences', icon: Globe },
-    { id: 'team', label: 'Équipe', icon: Users },
     { id: 'data', label: 'Données & Compte', icon: Download }
   ];
 
@@ -65,12 +64,6 @@ export default function Settings({ onLogout, onNavigateToPayment }: SettingsProp
       if (confirm('Dernière confirmation : Cette action est définitive')) {
         alert('Pour votre sécurité, veuillez contacter le support à support@metr.fr pour supprimer définitivement votre compte.');
       }
-    }
-  };
-
-  const handleUpgradeToPro = () => {
-    if (onNavigateToPayment) {
-      onNavigateToPayment();
     }
   };
 
@@ -303,59 +296,6 @@ export default function Settings({ onLogout, onNavigateToPayment }: SettingsProp
                       <option value="yyyy-mm-dd">AAAA-MM-JJ (2025-12-15)</option>
                     </select>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* TEAM */}
-            {activeTab === 'team' && (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <Users className="w-8 h-8 text-[#1e3a8a]" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">Gestion d'équipe</h3>
-                    <p className="text-gray-600">Invitez et gérez les membres de votre équipe</p>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-10 h-10 text-white" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-gray-900 mb-3">Fonctionnalité Pro</h4>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    La gestion d'équipe est disponible avec un abonnement Pro. Invitez des collaborateurs, gérez les permissions et travaillez ensemble.
-                  </p>
-                  
-                  <div className="bg-white rounded-lg p-6 mb-6 max-w-md mx-auto">
-                    <h5 className="font-semibold text-gray-900 mb-3">Fonctionnalités Pro :</h5>
-                    <ul className="text-left space-y-2 text-sm text-gray-700">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        Jusqu'à 10 membres par équipe
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        Gestion des rôles et permissions
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        Collaboration en temps réel
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        Historique complet des modifications
-                      </li>
-                    </ul>
-                  </div>
-
-                  <button 
-                    onClick={handleUpgradeToPro}
-                    className="bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all font-bold text-lg"
-                  >
-                    Passer à Pro - 29€/mois
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3">Essai gratuit de 14 jours, sans engagement</p>
                 </div>
               </div>
             )}

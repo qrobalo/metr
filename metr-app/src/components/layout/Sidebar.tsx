@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { LayoutGrid, FolderOpen, BookOpen, HelpCircle, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -60,10 +61,10 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg transition-all border-none ${
                 isActive
                   ? 'bg-[#1e40af] text-white'
-                  : 'text-gray-300 hover:bg-[#1e40af] hover:text-white'
+                  : 'text-white bg-[#1e3A8A]'
               }`}
               title={isCollapsed ? item.label : ''}
             >

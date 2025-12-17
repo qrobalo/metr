@@ -216,7 +216,7 @@ export default function Library({ articles, onCreateArticle, onImportLibrary, on
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
-                        <button className="text-gray-300 hover:text-yellow-500 transition-colors">
+                        <button className="text-gray-300 hover:text-yellow-500 transition-colors bg-transparent border-0 p-0 m-0">
                           <Star className="w-5 h-5" />
                         </button>
                       </div>
